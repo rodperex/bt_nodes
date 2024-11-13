@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <Action ID="Speak" params="Godofredo" speech_text="¿Qué quieres de beber []?"/>
+            <Action ID="Listen" listened_text="{heard}"/>
+            <Action ID="Query" intention="drink" intention_value="{option}" text="{heard}"/>
+            <Action ID="Speak" params="{option}" speech_text="Entonces quieres beber []"/>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="Listen">
+            <output_port name="listened_text">What was heard</output_port>
+        </Action>
+        <Action ID="Query">
+            <input_port name="intention"/>
+            <output_port name="intention_value"/>
+            <input_port name="text"/>
+        </Action>
+        <Action ID="Speak">
+            <input_port name="params"/>
+            <input_port name="speech_text"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
+</root>
