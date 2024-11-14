@@ -1,0 +1,13 @@
+repositories:
+  thirdparty/attention_system:
+    type: git
+    url: https://github.com/aaggj/attention_system
+    version: humble
+  thirdparty/cascade_lifecycle:
+    type: git
+    url: https://github.com/fmrico/cascade_lifecycle
+    version: main
+  thirdparty/navigation_system:
+    type: git
+    url: https://github.com/Juancams/navigation_system.git
+    version: main
