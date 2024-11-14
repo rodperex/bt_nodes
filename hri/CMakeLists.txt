@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(hri)
+project(hri_bt_nodes)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -49,11 +49,13 @@ include_directories(include ${ZMQ_INCLUDE_DIRS})
 
 add_library(listen_bt_node SHARED src/hri/dialog/Listen.cpp)
 add_library(speak_bt_node SHARED src/hri/dialog/Speak.cpp)
+add_library(dialog_confirmation_bt_node SHARED src/hri/dialog/Speak.cpp)
 add_library(query_bt_node SHARED src/hri/dialog/Query.cpp)
 
 list(APPEND plugin_libs
   listen_bt_node
   speak_bt_node
+  dialog_confirmation_bt_node
   query_bt_node
 )
 

@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>hri</name>
+  <name>hri_bt_nodes</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="samuele.sandrini@polito.it">Samuele</maintainer>
+  <maintainer email="rodrigo.perez@urjc.es">rod</maintainer>
   <license>Apache License, Version 2.0</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
   
