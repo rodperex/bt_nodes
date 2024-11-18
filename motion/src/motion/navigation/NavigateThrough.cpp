@@ -39,26 +39,42 @@ NavigateThrough::on_tick()
   geometry_msgs::msg::TransformStamped map_to_goal;
   std::vector<geometry_msgs::msg::PoseStamped> poses_to_goal;
   int steps;
-  std::string trajectory_style;
-  getInput("tf_frame", tf_frame_);
+  std::string tf_frame, xml_path, trajectory_style;
+
+  getInput("tf_frame", tf_frame);
   getInput("n_poses", steps);
   getInput("style", trajectory_style);
 
-  try {
-    map_to_goal = tf_buffer_.lookupTransform("map", tf_frame_, tf2::TimePointZero);
-  } catch (const tf2::TransformException & ex) {
-    RCLCPP_INFO(
-      node_->get_logger(), "Could not transform %s to %s: %s", "map", tf_frame_.c_str(), ex.what());
-    setStatus(BT::NodeStatus::RUNNING);
+  
+  if (tf_frame.length() > 0) { // There is a TF to go, ignore coordinates
+    RCLCPP_INFO(node_->get_logger(), "Transforming %s to %s", "map", tf_frame.c_str());
+    try {
+      map_to_goal = tf_buffer_.lookupTransform("map", tf_frame, tf2::TimePointZero);
+    } catch (const tf2::TransformException & ex) {
+      RCLCPP_INFO(
+        node_->get_logger(), "Could not transform %s to %s: %s", "map", tf_frame.c_str(), ex.what());
+      setStatus(BT::NodeStatus::RUNNING);
+    }
+    
+    goal.pose.position.x = map_to_goal.transform.translation.x;
+    goal.pose.position.y = map_to_goal.transform.translation.y;
+    goal.pose.orientation.x = map_to_goal.transform.rotation.x;
+    goal.pose.orientation.y = map_to_goal.transform.rotation.y;
+    goal.pose.orientation.z = map_to_goal.transform.rotation.z;
+    goal.pose.orientation.w = map_to_goal.transform.rotation.w;
+
+  } else {
+    getInput("x", goal.pose.position.x);
+    getInput("y", goal.pose.position.y);
+    
+    RCLCPP_INFO(node_->get_logger(), "Setting goal to x: %f, y: %f", goal.pose.position.x, goal.pose.position.y);
+    goal.pose.orientation.x = 0.0;
+    goal.pose.orientation.y = 0.0;
+    goal.pose.orientation.z = 0.0;
+    goal.pose.orientation.w = 1.0;
   }
 
   goal.header.frame_id = "map";
-  goal.pose.position.x = map_to_goal.transform.translation.x;
-  goal.pose.position.y = map_to_goal.transform.translation.y;
-  goal.pose.orientation.x = map_to_goal.transform.rotation.x;
-  goal.pose.orientation.y = map_to_goal.transform.rotation.y;
-  goal.pose.orientation.z = map_to_goal.transform.rotation.z;
-  goal.pose.orientation.w = map_to_goal.transform.rotation.w;
 
   poses_to_goal = generate_poses_to_goal(goal, map_to_goal, steps, trajectory_style);
 

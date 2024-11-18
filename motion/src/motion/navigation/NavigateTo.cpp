@@ -26,7 +26,6 @@ NavigateTo::NavigateTo(
   tf_buffer_(),
   tf_listener_(tf_buffer_)
 {
-  // config().blackboard->get("node", node_);
 
   callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   callback_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
@@ -42,27 +41,43 @@ void NavigateTo::on_tick()
   RCLCPP_DEBUG(node_->get_logger(), "NavigateTo ticked");
   geometry_msgs::msg::PoseStamped goal;
   geometry_msgs::msg::TransformStamped map_to_goal;
+  bool is_truncated;
+  std::string tf_frame, xml_path;
 
-  getInput("tf_frame", tf_frame_);
-  getInput("distance_tolerance", distance_tolerance_);
+  getInput("tf_frame", tf_frame);
   getInput("will_finish", will_finish_);
-  getInput("is_truncated", is_truncated_);
+  getInput("is_truncated", is_truncated);
 
-  try {
-    map_to_goal = tf_buffer_.lookupTransform("map", tf_frame_, tf2::TimePointZero);
-  } catch (const tf2::TransformException & ex) {
-    RCLCPP_INFO(
-      node_->get_logger(), "Could not transform %s to %s: %s", "map", tf_frame_.c_str(), ex.what());
-    setStatus(BT::NodeStatus::RUNNING);
+  if (tf_frame.length() > 0) { // There is a TF to go, ignore coordinates
+    RCLCPP_INFO(node_->get_logger(), "Transforming %s to %s", "map", tf_frame.c_str());
+    try {
+      map_to_goal = tf_buffer_.lookupTransform("map", tf_frame, tf2::TimePointZero);
+    } catch (const tf2::TransformException & ex) {
+      RCLCPP_WARN(
+        node_->get_logger(), "Could not transform %s to %s: %s", "map", tf_frame.c_str(), ex.what());
+      setStatus(BT::NodeStatus::RUNNING);
+    }
+    
+    goal.pose.position.x = map_to_goal.transform.translation.x;
+    goal.pose.position.y = map_to_goal.transform.translation.y;
+    goal.pose.orientation.x = map_to_goal.transform.rotation.x;
+    goal.pose.orientation.y = map_to_goal.transform.rotation.y;
+    goal.pose.orientation.z = map_to_goal.transform.rotation.z;
+    goal.pose.orientation.w = map_to_goal.transform.rotation.w;
+
+  } else { // No TF, use coordinates
+
+    getInput("x", goal.pose.position.x);
+    getInput("y", goal.pose.position.y);
+    RCLCPP_INFO(node_->get_logger(), "Setting goal to x: %f, y: %f", goal.pose.position.x, goal.pose.position.y);
+    
+    goal.pose.orientation.w = 1.0;
+    goal.pose.orientation.x = 0.0;
+    goal.pose.orientation.y = 0.0;
+    goal.pose.orientation.z = 0.0;
   }
 
   goal.header.frame_id = "map";
-  goal.pose.position.x = map_to_goal.transform.translation.x;
-  goal.pose.position.y = map_to_goal.transform.translation.y;
-  goal.pose.orientation.x = map_to_goal.transform.rotation.x;
-  goal.pose.orientation.y = map_to_goal.transform.rotation.y;
-  goal.pose.orientation.z = map_to_goal.transform.rotation.z;
-  goal.pose.orientation.w = map_to_goal.transform.rotation.w;
 
   if (!set_truncate_distance_client_->wait_for_service(std::chrono::seconds(1))) {
     RCLCPP_WARN(node_->get_logger(), "Waiting for action server to be up...");
@@ -74,29 +89,11 @@ void NavigateTo::on_tick()
     goal.pose.position.x, goal.pose.position.y, goal.pose.orientation.x, goal.pose.orientation.y,
     goal.pose.orientation.z, goal.pose.orientation.w, goal.header.frame_id.c_str());
 
-  if (is_truncated_) {
-    xml_path_ = generate_xml_file(nav_to_pose_truncated_xml, distance_tolerance_);
-
-    // auto request = std::make_shared<navigation_system_interfaces::srv::SetTruncateDistance::Request>();
-
-    // request->distance = distance_tolerance_;
-    // request->xml_content = nav_to_pose_truncated_xml;
-    // auto future_request = set_truncate_distance_client_->async_send_request(request).share();
-    // if (rclcpp::spin_until_future_complete(node_, future_request) ==
-    // rclcpp::FutureReturnCode::SUCCESS)
-    // {
-    //   RCLCPP_INFO(node_->get_logger(), "Truncate distance setted");
-    //   auto result = *future_request.get();
-    //   if (!result.success) {
-    //     RCLCPP_ERROR(node_->get_logger(), "Truncate distance FAILED calling service");
-    //     setStatus(BT::NodeStatus::FAILURE);
-    //   }
-    //   xml_path_ = result.xml_path;
-    // } else {
-    //   RCLCPP_ERROR(node_->get_logger(), "Truncate distance FAILED");
-    //   setStatus(BT::NodeStatus::FAILURE);
-    // }
-    goal_.behavior_tree = xml_path_;
+  if (is_truncated) {
+    double distance_tolerance;
+    getInput("distance_tolerance", distance_tolerance);
+    xml_path = generate_xml_file(nav_to_pose_truncated_xml, distance_tolerance);
+    goal_.behavior_tree = xml_path;
   }
 
   goal_.pose = goal;

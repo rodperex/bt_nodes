@@ -59,6 +59,8 @@ public:
       {
         BT::InputPort<double>("distance_tolerance"),
         BT::InputPort<std::string>("tf_frame"),
+        BT::InputPort<double>("x"),
+        BT::InputPort<double>("y"),
         BT::InputPort<bool>("will_finish"),
         BT::InputPort<bool>("is_truncated")
       });
@@ -74,21 +76,9 @@ private:
 
   tf2::BufferCore tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
-  
-  double distance_tolerance_;
-  std::string tf_frame_, xml_path_;
-  geometry_msgs::msg::PoseStamped pose_;
-  
+    
   bool will_finish_{true};
-  bool is_truncated_{false};
   
-  // std::shared_ptr<rclcpp_action::Client<nav2_msgs::action::ComputePathToPose>> compute_action_client_;
-  // std::shared_ptr<rclcpp_action::Client<nav2_msgs::action::FollowPath>> follow_action_client_;
-  // rclcpp_action::ClientGoalHandle<nav2_msgs::action::ComputePathToPose>::WrappedResult path_result_;
-  // rclcpp_action::ClientGoalHandle<nav2_msgs::action::FollowPath>::WrappedResult follow_result_;
-  // rclcpp_action::ClientGoalHandle<nav2_msgs::action::ComputePathToPose>::SharedPtr path_goal_handle_;
-  // rclcpp_action::ClientGoalHandle<nav2_msgs::action::FollowPath>::SharedPtr follow_goal_handle_;
-  // bool path_result_available_, goal_send_ {false};
 };
 
 }  // namespace navigation
