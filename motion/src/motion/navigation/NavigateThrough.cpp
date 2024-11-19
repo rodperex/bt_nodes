@@ -119,7 +119,6 @@ NavigateThrough::on_cancelled()
   return BT::NodeStatus::SUCCESS;
 }
 
-
 std::vector<geometry_msgs::msg::PoseStamped>
 NavigateThrough::generate_poses_to_goal(    
     const geometry_msgs::msg::PoseStamped & goal,
@@ -130,27 +129,40 @@ NavigateThrough::generate_poses_to_goal(
 {
   std::vector<geometry_msgs::msg::PoseStamped> poses;
 
+  // Distance between robot and goal
+  double dx = map_to_goal.transform.translation.x - map_to_robot.transform.translation.x;
+  double dy = map_to_goal.transform.translation.y - map_to_robot.transform.translation.y;
+  double distance = std::sqrt(dx * dx + dy * dy);
+
+  // Proportional radius to distance
+  double k = 0.3;
+  getInput("k_radius", k);
+  double radius = k * distance;
+
+  RCLCPP_INFO(
+    node_->get_logger(), "Generating %d poses to goal with style %s", n_poses, style.c_str());
+
   for (int i = 0; i < n_poses; i++) {
     geometry_msgs::msg::PoseStamped pose;
     pose.header.frame_id = goal.header.frame_id;
     pose.header.stamp = node_->now();
 
-    // Fracción del camino (0.0 a 1.0)
+    // Fraction of the way (0.0 to 1.0)
     double fraction = static_cast<double>(i) / (n_poses - 1);
 
     if (style == "straight") {
-      // Interpolación lineal directa entre robot y goal
+      // Linear interpolation
       pose.pose.position.x = map_to_robot.transform.translation.x +
-                             fraction * (map_to_goal.transform.translation.x - map_to_robot.transform.translation.x);
+                             fraction * dx;
       pose.pose.position.y = map_to_robot.transform.translation.y +
-                             fraction * (map_to_goal.transform.translation.y - map_to_robot.transform.translation.y);
+                             fraction * dy;
       pose.pose.position.z = map_to_robot.transform.translation.z +
                              fraction * (map_to_goal.transform.translation.z - map_to_robot.transform.translation.z);
 
     } else if (style == "circular-l" || style == "circular-r") {
-      double radius = 1.0;
-      // getInput("radius", radius);
-      double angle = fraction * M_PI;  // Desde 0 hasta 180 grados
+      RCLCPP_INFO(node_->get_logger(), "Radius: %f", radius);
+      // Circular interpolation
+      double angle = fraction * M_PI;  // From 0 to 180 degrees
       double cx = (map_to_robot.transform.translation.x + map_to_goal.transform.translation.x) / 2.0;
       double cy = (map_to_robot.transform.translation.y + map_to_goal.transform.translation.y) / 2.0;
 
@@ -161,10 +173,10 @@ NavigateThrough::generate_poses_to_goal(
         pose.pose.position.x = cx + radius * cos(angle);
         pose.pose.position.y = cy - radius * sin(angle);
       }
-      pose.pose.position.z = map_to_robot.transform.translation.z;  // Mantén z constante
+      pose.pose.position.z = map_to_robot.transform.translation.z;
     }
 
-    // Mantén la orientación del objetivo
+    // Same orientation as goal
     pose.pose.orientation = goal.pose.orientation;
 
     RCLCPP_INFO(
@@ -177,7 +189,6 @@ NavigateThrough::generate_poses_to_goal(
   
   return poses;
 }
-
 
 }  // namespace navigation
 

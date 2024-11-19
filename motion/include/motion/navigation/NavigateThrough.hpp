@@ -51,7 +51,7 @@ public:
         BT::InputPort<std::string>("tf_frame"),
         BT::InputPort<std::string>("style"), // straight, circular-l, circular-r
         BT::InputPort<int>("n_poses"),
-        // BT::InputPort<double>("radius"),
+        BT::InputPort<double>("k_radius"),
         BT::InputPort<double>("x"),
         BT::InputPort<double>("y"),
       });
