@@ -23,19 +23,19 @@ import yaml
 
 def generate_launch_description():
     # Get the launch directory
-    pkg_dir = get_package_share_directory('hri_bt_nodes')
+    pkg_dir = get_package_share_directory('motion_bt_nodes')
     
-    params_file = os.path.join(pkg_dir, 'config', 'hri.yaml')
+    params_file = os.path.join(pkg_dir, 'config', 'nav.yaml')
     # print('params_file: ', params_file)
     with open(params_file, 'r') as f:
-        params = yaml.safe_load(f)['hri_node']['ros__parameters']
+        params = yaml.safe_load(f)['nav_node']['ros__parameters']
     # print(params)
 
     ld = LaunchDescription()
 
-    hri_cmd = Node(
-        package='hri_bt_nodes',
-        executable='hri_test',
+    nav_cmd = Node(
+        package='motion_bt_nodes',
+        executable='nav_test',
         output='screen',
         remappings=[
         ],
@@ -44,7 +44,7 @@ def generate_launch_description():
         }, params]
     )
 
-    ld.add_action(hri_cmd)
+    ld.add_action(nav_cmd)
 
     return ld
 

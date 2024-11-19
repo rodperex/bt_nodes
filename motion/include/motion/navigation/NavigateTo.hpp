@@ -61,8 +61,7 @@ public:
         BT::InputPort<std::string>("tf_frame"),
         BT::InputPort<double>("x"),
         BT::InputPort<double>("y"),
-        BT::InputPort<bool>("will_finish"),
-        BT::InputPort<bool>("is_truncated")
+        BT::InputPort<bool>("will_finish")
       });
   }
 
@@ -71,8 +70,6 @@ private:
   
   rclcpp::CallbackGroup::SharedPtr callback_group_;
   rclcpp::executors::SingleThreadedExecutor callback_executor_;
-  rclcpp::Client<navigation_system_interfaces::srv::SetTruncateDistance>::SharedPtr
-    set_truncate_distance_client_;
 
   tf2::BufferCore tf_buffer_;
   tf2_ros::TransformListener tf_listener_;

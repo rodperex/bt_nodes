@@ -20,20 +20,12 @@ namespace navigation
 NavigateTo::NavigateTo(
   const std::string & xml_tag_name, const std::string & action_name,
   const BT::NodeConfiguration & conf)
-: motion::BtActionNode<
-    nav2_msgs::action::NavigateToPose, rclcpp_cascade_lifecycle::CascadeLifecycleNode>(
+: motion::BtActionNode<nav2_msgs::action::NavigateToPose, rclcpp_cascade_lifecycle::CascadeLifecycleNode>(
     xml_tag_name, action_name, conf),
   tf_buffer_(),
   tf_listener_(tf_buffer_)
 {
-
-  callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-  callback_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
-
-  set_truncate_distance_client_ =
-    node_->create_client<navigation_system_interfaces::srv::SetTruncateDistance>(
-    "navigation_system_node/set_truncate_distance", rmw_qos_profile_services_default,
-    callback_group_);
+  config().blackboard->get("node", node_);
 }
 
 void NavigateTo::on_tick()
@@ -79,19 +71,15 @@ void NavigateTo::on_tick()
 
   goal.header.frame_id = "map";
 
-  if (!set_truncate_distance_client_->wait_for_service(std::chrono::seconds(1))) {
-    RCLCPP_WARN(node_->get_logger(), "Waiting for action server to be up...");
-    setStatus(BT::NodeStatus::RUNNING);
-  }
-
   RCLCPP_INFO(
     node_->get_logger(), "Sending goal: x: %f, y: %f, qx: %f, qy: %f, qz: %f qw: %f. Frame: %s",
     goal.pose.position.x, goal.pose.position.y, goal.pose.orientation.x, goal.pose.orientation.y,
     goal.pose.orientation.z, goal.pose.orientation.w, goal.header.frame_id.c_str());
 
-  if (is_truncated) {
-    double distance_tolerance;
-    getInput("distance_tolerance", distance_tolerance);
+  double distance_tolerance = 0;
+  getInput("distance_tolerance", distance_tolerance);
+  
+  if (distance_tolerance != 0) {
     xml_path = generate_xml_file(nav_to_pose_truncated_xml, distance_tolerance);
     goal_.behavior_tree = xml_path;
   }
@@ -139,7 +127,7 @@ BT::NodeStatus NavigateTo::on_cancelled()
 BT_REGISTER_NODES(factory)
 {
   BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
-      return std::make_unique<navigation::NavigateTo>(name, "/navigate_to_pose", config);
+      return std::make_unique<navigation::NavigateTo>(name, "navigate_to_pose", config);
   };
 
   factory.registerBuilder<navigation::NavigateTo>("NavigateTo", builder);

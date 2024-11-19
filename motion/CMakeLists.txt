@@ -67,7 +67,12 @@ foreach(bt_plugin ${plugin_libs})
   target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)
 endforeach()
 
+add_executable(nav_test src/motion/main_nav.cpp)
+ament_target_dependencies(nav_test ${dependencies})
+target_link_libraries(nav_test ${ZMQ_LIBRARIES})
+
 install(TARGETS
+  nav_test
   ${plugin_libs}
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
@@ -75,9 +80,10 @@ install(TARGETS
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY include/
-  DESTINATION include/
+install(DIRECTORY include launch config bt_xml
+  DESTINATION share/${PROJECT_NAME}
 )
+
 # install(FILES clear_people_layer.xml
 #   DESTINATION share/${PROJECT_NAME}
 # )

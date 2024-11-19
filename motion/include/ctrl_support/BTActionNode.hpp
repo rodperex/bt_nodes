@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef CTRL_SUPPORT__BTACTIONNODE_HPP_
-#define CTRL_SUPPORT__BTACTIONNODE_HPP_
+#ifndef NAVIGATION__CTRL_SUPPORT__BTACTIONNODE_HPP_
+#define NAVIGATION__CTRL_SUPPORT__BTACTIONNODE_HPP_
 
 #include <memory>
 #include <string>
@@ -272,4 +272,4 @@ protected:
 
 }  // namespace motion
 
-#endif  // CTRL_SUPPORT__BTACTIONNODE_HPP_
+#endif  // NAVIGATION__CTRL_SUPPORT__BTACTIONNODE_HPP_

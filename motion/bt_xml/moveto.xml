@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <Action ID="MoveTo" distance_tolerance="0.0" is_truncated="false" tf_frame="map" will_finish="true"/>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="MoveTo">
+            <input_port name="distance_tolerance"/>
+            <input_port name="is_truncated"/>
+            <input_port name="tf_frame"/>
+            <input_port name="will_finish"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
+</root>

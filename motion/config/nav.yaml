@@ -1,0 +1,8 @@
+nav_node:
+  ros__parameters:
+    use_sim_time: True
+    bt_xml_file: simple_nav.xml
+    plugins:
+    - navigate_to_bt_node
+    - move_to_bt_node
+

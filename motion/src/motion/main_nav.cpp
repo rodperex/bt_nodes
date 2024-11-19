@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<rclcpp_cascade_lifecycle::CascadeLifecycleNode>("hri_node");
+  auto node = std::make_shared<rclcpp_cascade_lifecycle::CascadeLifecycleNode>("nav_node");
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_ACTIVATE);
 
@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
     factory.registerFromPlugin(loader.getOSName(plugin));
   }
 
-  std::string pkgpath = ament_index_cpp::get_package_share_directory("hri_bt_nodes");
+  std::string pkgpath = ament_index_cpp::get_package_share_directory("motion_bt_nodes");
   std::string xml_file = pkgpath + "/bt_xml/" + bt_xml_file;
 
   RCLCPP_INFO(node->get_logger(), "Loading BT: [%s]", xml_file.c_str());
