@@ -3,16 +3,18 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <Action ID="MoveTo" distance_tolerance="0.0" is_truncated="false" tf_frame="map" will_finish="true"/>
+            <Action ID="NavigateTo" distance_tolerance="0.2" tf_frame="" will_finish="true" x="3.17" y="0.63"/>
+            <Action ID="NavigateTo" distance_tolerance="0.3" tf_frame="odom" will_finish="true" x="" y=""/>
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
     <TreeNodesModel>
-        <Action ID="MoveTo">
+        <Action ID="NavigateTo">
             <input_port name="distance_tolerance"/>
-            <input_port name="is_truncated"/>
             <input_port name="tf_frame"/>
             <input_port name="will_finish"/>
+            <input_port name="x"/>
+            <input_port name="y"/>
         </Action>
     </TreeNodesModel>
     <!-- ////////// -->

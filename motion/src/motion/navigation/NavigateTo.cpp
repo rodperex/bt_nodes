@@ -33,12 +33,13 @@ void NavigateTo::on_tick()
   RCLCPP_DEBUG(node_->get_logger(), "NavigateTo ticked");
   geometry_msgs::msg::PoseStamped goal;
   geometry_msgs::msg::TransformStamped map_to_goal;
-  bool is_truncated;
   std::string tf_frame, xml_path;
 
   getInput("tf_frame", tf_frame);
   getInput("will_finish", will_finish_);
-  getInput("is_truncated", is_truncated);
+  
+  double distance_tolerance = 0;
+  getInput("distance_tolerance", distance_tolerance);
 
   if (tf_frame.length() > 0) { // There is a TF to go, ignore coordinates
     RCLCPP_INFO(node_->get_logger(), "Transforming %s to %s", "map", tf_frame.c_str());
@@ -72,14 +73,10 @@ void NavigateTo::on_tick()
   goal.header.frame_id = "map";
 
   RCLCPP_INFO(
-    node_->get_logger(), "Sending goal: x: %f, y: %f, qx: %f, qy: %f, qz: %f qw: %f. Frame: %s",
-    goal.pose.position.x, goal.pose.position.y, goal.pose.orientation.x, goal.pose.orientation.y,
-    goal.pose.orientation.z, goal.pose.orientation.w, goal.header.frame_id.c_str());
-
-  double distance_tolerance = 0;
-  getInput("distance_tolerance", distance_tolerance);
+    node_->get_logger(), "Sending coordinates. Frame: %s", goal.header.frame_id.c_str());
   
   if (distance_tolerance != 0) {
+    RCLCPP_INFO(node_->get_logger(), "Setting distance tolerance to %f", distance_tolerance);
     xml_path = generate_xml_file(nav_to_pose_truncated_xml, distance_tolerance);
     goal_.behavior_tree = xml_path;
   }

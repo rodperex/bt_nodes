@@ -51,6 +51,7 @@ public:
         BT::InputPort<std::string>("tf_frame"),
         BT::InputPort<std::string>("style"), // straight, circular-l, circular-r
         BT::InputPort<int>("n_poses"),
+        // BT::InputPort<double>("radius"),
         BT::InputPort<double>("x"),
         BT::InputPort<double>("y"),
       });
@@ -60,13 +61,11 @@ private:
   std::vector<geometry_msgs::msg::PoseStamped> generate_poses_to_goal(    
     const geometry_msgs::msg::PoseStamped & goal,
     geometry_msgs::msg::TransformStamped map_to_goal,
+    geometry_msgs::msg::TransformStamped map_to_robot,
     int n_poses, const std::string & style);
   
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
   
-  rclcpp::CallbackGroup::SharedPtr callback_group_;
-  rclcpp::executors::SingleThreadedExecutor callback_executor_;
-
   tf2::BufferCore tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
   
