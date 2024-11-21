@@ -68,6 +68,8 @@ int main(int argc, char * argv[])
     rate.sleep();
   }
 
+  node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_DEACTIVATE);
+
   RCLCPP_INFO(node->get_logger(), "Finished behavior from BT");
 
   rclcpp::shutdown();

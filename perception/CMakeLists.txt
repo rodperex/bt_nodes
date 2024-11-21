@@ -53,12 +53,16 @@ add_library(is_detected_bt_node SHARED src/perception/IsDetected.cpp)
 add_library(filter_entity_bt_node SHARED src/perception/FilterEntity.cpp)
 add_library(is_pointing_bt_node SHARED src/perception/IsPointing.cpp)
 add_library(identify_person_bt_node SHARED src/perception/IdentifyPerson.cpp)
+add_library(get_angle_bt_node SHARED src/perception/GetAngle.cpp)
+add_library(is_in_front_bt_node SHARED src/perception/IsInFront.cpp)
 
 list(APPEND plugin_libs
   is_detected_bt_node
   filter_entity_bt_node
   is_pointing_bt_node
   identify_person_bt_node
+  get_angle_bt_node
+  is_in_front_bt_node
 )
 
 foreach(bt_plugin ${plugin_libs})

@@ -69,25 +69,25 @@ int IsPointing::publish_detection_tf(
   geometry_msgs::msg::TransformStamped map2camera_msg;
 
   RCLCPP_INFO(
-    node_->get_logger(), "[IsPointing] Detectection in frame_id %s",
+    node_->get_logger(), "Detectection in frame_id %s",
     detection.header.frame_id.c_str());
 
   try {
     map2camera_msg = tf_buffer_->lookupTransform("map", camera_frame_, tf2::TimePointZero);
   } catch (const tf2::TransformException & ex) {
     RCLCPP_INFO(
-      node_->get_logger(), "[IsPointing] Could not transform %s to %s: %s", "map",
+      node_->get_logger(), "Could not transform %s to %s: %s", "map",
       camera_frame_.c_str(), ex.what());
     return -1;
   }
 
   // 0 is right, 1 is down-right, 2 is down, 3 is down-left, 4 is left, 5 is up-left, 6 is up, 7 is up-right
   RCLCPP_INFO(
-    node_->get_logger(), "[IsPointing] Low pointing limit %d. High point limit %d", low_pointing_limit_,
+    node_->get_logger(), "Low pointing limit %d. High point limit %d", low_pointing_limit_,
     high_pointing_limit_);
   for (int i = low_pointing_limit_; i <= high_pointing_limit_; i++) {
     RCLCPP_INFO(
-      node_->get_logger(), "[IsPointing] Pointing direction %d",
+      node_->get_logger(), "Pointing direction %d",
       detection.pointing_direction);
     if (detection.pointing_direction == i) {
       pointing_direction = i;
@@ -147,18 +147,34 @@ BT::NodeStatus IsPointing::tick()
   best_detection = detections[0];
 
   RCLCPP_INFO(
-    node_->get_logger(), "[IsPointing] Best detection: %s, color: %ld, pointing: %d",
+    node_->get_logger(), "Best detection: %s, color: %ld, pointing: %d",
     best_detection.unique_id.c_str(), best_detection.color_person,
     best_detection.pointing_direction);
 
-  int direction = publish_detection_tf(best_detection);
+  // int direction = publish_detection_tf(best_detection);
+  int direction;
+  pl::getInstance(node_)->publishTF(best_detection, output_frame_);
+  for (int i = low_pointing_limit_; i <= high_pointing_limit_; i++) {
+    RCLCPP_INFO(
+      node_->get_logger(), "Pointing direction %d",
+      best_detection.pointing_direction);
+    if (best_detection.pointing_direction == i) {
+      direction = i;
+      setOutput("pointing_direction", direction);
+      break;
+    }
+  }
+
   if (direction == -1) {
-    RCLCPP_ERROR(node_->get_logger(), "[IsPointing] Error, invalid pointing direction");
+    RCLCPP_ERROR(node_->get_logger(), "Error, invalid pointing direction");
     return BT::NodeStatus::FAILURE;
   }
-  setOutput("output_frame", "someone_pointing");
-  setOutput("pointing_direction", direction);
-  setOutput("person_id", best_detection.unique_id);
+
+  // If someones is pointing, we return SUCCESS and populate output ports
+  setOutput("detection", best_detection);
+  setOutput("output_frame", output_frame_);
+  // setOutput("pointing_direction", direction);
+  // setOutput("person_id", best_detection.unique_id);
   
   return BT::NodeStatus::SUCCESS;
 }

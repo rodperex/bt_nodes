@@ -54,9 +54,11 @@ public:
         BT::InputPort<std::string>("camera_frame"),
         BT::InputPort<int>("low_pointing_limit"),
         BT::InputPort<int>("high_pointing_limit"),
+        BT::InputPort<std::string>("output_frame"),
         BT::OutputPort<std::string>("output_frame"),
         BT::OutputPort<int>("pointing_direction"),
-        BT::OutputPort<std::string>("person_id")
+        // BT::OutputPort<std::string>("person_id"),
+        BT::OutputPort<perception_system_interfaces::msg::Detection>("detection")
       });
   }
 

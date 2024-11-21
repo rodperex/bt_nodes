@@ -51,7 +51,8 @@ public:
       {
         BT::InputPort<std::string>("person_to_identify"),
         BT::InputPort<bool>("get_features"), // If true, features are saved. If false, features were already saved
-        BT::InputPort<double>("confidence")
+        BT::InputPort<double>("confidence"),
+        BT::InputPort<perception_system_interfaces::msg::Detection>("detection"),
       });
   }
 

@@ -58,7 +58,9 @@ public:
         BT::InputPort<std::string>("order"),
         BT::InputPort<double>("max_depth"),
         BT::OutputPort<std::string>("frame"), // TF frame of the detected entity
-        BT::OutputPort<std::string>("best_detection")
+        // BT::OutputPort<std::string>("best_detection"),
+        BT::OutputPort<perception_system_interfaces::msg::Detection>("detection"),
+        BT::OutputPort<int>("n_detections"),
       });
   }
 

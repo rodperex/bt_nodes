@@ -18,20 +18,9 @@ namespace base
 {
 
 Spin::Spin(const std::string & xml_tag_name, const BT::NodeConfiguration & conf)
-: BT::ActionNodeBase(xml_tag_name, conf),
-  direction_(-1)
+: BT::ActionNodeBase(xml_tag_name, conf)
 {
   config().blackboard->get("node", node_);
-
-  getInput("angle", angle_);
-  getInput("speed", speed_);
-  getInput("direction", direction_);
-
-  if (angle_ < 0) {
-    RCLCPP_INFO(node_->get_logger(), "Spinning forever");
-  } else {
-    RCLCPP_INFO(node_->get_logger(), "Spinning %.2f degrees at %.2f rad/s (dir: %d)", angle_, speed_, direction_);
-  }
 
   vel_pub_ = node_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
   vel_pub_->on_activate();
@@ -40,6 +29,18 @@ Spin::Spin(const std::string & xml_tag_name, const BT::NodeConfiguration & conf)
 BT::NodeStatus Spin::tick()
 {
   RCLCPP_DEBUG(node_->get_logger(), "Spin ticked");
+
+  getInput("angle", angle_);
+  getInput("speed", speed_);
+  getInput("forever", forever_);
+  // getInput("direction", direction_);
+
+  if (forever_) {
+    RCLCPP_DEBUG(node_->get_logger(), "Spinning forever");
+  } else {
+    // RCLCPP_INFO(node_->get_logger(), "Spinning %.2f degrees at %.2f rad/s (dir: %d)", angle_, speed_, direction_);
+    RCLCPP_DEBUG(node_->get_logger(), "Spinning %.2f degrees at %.2f rad/s", angle_, speed_);
+  }
 
   if (status() == BT::NodeStatus::IDLE) {
     rotated_angle_ = 0;
@@ -51,14 +52,16 @@ BT::NodeStatus Spin::tick()
   }
 
   geometry_msgs::msg::Twist cmd_vel;
-  cmd_vel.angular.z = speed_ * direction_;
+  // cmd_vel.angular.z = speed_ * direction_;
+  cmd_vel.angular.z = speed_ * std::copysign(1, angle_);
 
-  if (angle_ < 0) {
+  if (forever_) {
     RCLCPP_DEBUG(node_->get_logger(), "Spinning forever");
     vel_pub_->publish(cmd_vel);
     return BT::NodeStatus::RUNNING;
-  } else if ((rotated_angle_ < angle_) && (angle_ >= 0)) {
-    RCLCPP_DEBUG(node_->get_logger(), "Target: %.2f degrees (dir: %d). Spinned %.2f degrees: ", angle_, direction_, rotated_angle_);
+  } else if ((std::abs(rotated_angle_) < std::abs(angle_))) {
+    // RCLCPP_DEBUG(node_->get_logger(), "Target: %.2f degrees (dir: %d). Spinned %.2f degrees: ", angle_, direction_, rotated_angle_);
+    RCLCPP_INFO(node_->get_logger(), "Target: %.2f degrees. Spinned %.2f degrees: ", angle_, rotated_angle_);
     vel_pub_->publish(cmd_vel);
     auto curr_time = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time_);

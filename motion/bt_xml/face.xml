@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <Action ID="NavigateTo" distance_tolerance="0.0" tf_frame="" will_finish="true" x="3.17" y="0.63"/>
+            <!-- <Action ID="Spin" angle="180" direction="-1" speed="0.5"/> -->
+            <Action ID="Face" base_frame="base_link" tf_frame="map"/>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="Face">
+            <input_port default="base_link" name="base_frame"/>
+            <input_port name="tf_frame"/>
+        </Action>
+        <Action ID="NavigateTo">
+            <input_port name="distance_tolerance"/>
+            <input_port name="tf_frame"/>
+            <input_port name="will_finish"/>
+            <input_port name="x"/>
+            <input_port name="y"/>
+        </Action>
+        <Action ID="Spin">
+            <input_port name="angle"/>
+            <input_port default="-1" name="direction">1: left; -1: right</input_port>
+            <input_port name="speed"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
+</root>

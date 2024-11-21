@@ -6,3 +6,4 @@ nav_node:
     - navigate_to_bt_node
     - navigate_through_bt_node
     - spin_bt_node
+    - get_angle_bt_node

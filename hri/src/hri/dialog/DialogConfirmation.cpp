@@ -14,15 +14,9 @@
 
 #include "hri/dialog/DialogConfirmation.hpp"
 
-#include <string>
-#include <utility>
 
-#include "behaviortree_cpp_v3/behavior_tree.h"
-#include "hri/dialog/DialogConfirmation.hpp"
-#include "std_msgs/msg/int8.hpp"
-#include "whisper_msgs/action/stt.hpp"
 
-namespace dialog
+namespace hri
 {
 
 using namespace std::chrono_literals;
@@ -31,10 +25,12 @@ using namespace std::placeholders;
 DialogConfirmation::DialogConfirmation(
   const std::string & xml_tag_name, const std::string & action_name,
   const BT::NodeConfiguration & conf)
-: dialog::BtActionNode<whisper_msgs::action::STT, rclcpp_cascade_lifecycle::CascadeLifecycleNode>(
+: hri::BtActionNode<whisper_msgs::action::STT, rclcpp_cascade_lifecycle::CascadeLifecycleNode>(
     xml_tag_name, action_name, conf)
 {
   speech_start_publisher_ = node_->create_publisher<std_msgs::msg::Int8>("dialog_action", 10);
+
+  getInput("language", lang_);
 }
 
 void DialogConfirmation::on_tick()
@@ -61,20 +57,26 @@ BT::NodeStatus DialogConfirmation::on_success()
   std::transform(
     result_.result->transcription.text.begin(), result_.result->transcription.text.end(), result_.result->transcription.text.begin(),
     [](unsigned char c) {return std::tolower(c);});
-  if (result_.result->transcription.text.find("yes") != std::string::npos) {
+  
+  std::string yes_word = "yes";
+  if (lang_ == "es") {
+    yes_word = "sí";
+  }
+
+  if (result_.result->transcription.text.find(yes_word) != std::string::npos) {
     return BT::NodeStatus::SUCCESS;
   } else {
     return BT::NodeStatus::FAILURE;
   }
 }
 
-}  // namespace dialog
+}  // namespace hri
 #include "behaviortree_cpp_v3/bt_factory.h"
 BT_REGISTER_NODES(factory)
 {
   BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
-      return std::make_unique<dialog::DialogConfirmation>(name, "/whisper/listen", config);
+      return std::make_unique<hri::DialogConfirmation>(name, "/whisper/listen", config);
     };
 
-  factory.registerBuilder<dialog::DialogConfirmation>("DialogConfirmation", builder);
+  factory.registerBuilder<hri::DialogConfirmation>("DialogConfirmation", builder);
 }

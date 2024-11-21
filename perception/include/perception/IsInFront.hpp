@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef BASE_ROTATE_HPP_
-#define BASE_ROTATE_HPP_
+#ifndef PERCEPTION_IS_IN_FRONT_HPP_
+#define PERCEPTION_IS_IN_FRONT_HPP_
 
 #include <tf2_ros/buffer.h>
 
@@ -31,40 +31,38 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "std_msgs/msg/string.hpp"
 
-namespace base
+#include "perception_system/PerceptionListener.hpp"
+#include "perception_system_interfaces/msg/detection.hpp"
+
+namespace perception
 {
 
-class Spin : public BT::ActionNodeBase
+class IsInFront : public BT::ConditionNode
 {
 public:
-  explicit Spin(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
+  explicit IsInFront(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
-  void halt();
   BT::NodeStatus tick();
 
   static BT::PortsList providedPorts()
   {
     return BT::PortsList(
       {
-        BT::InputPort<double>("angle"), // if -1, it will spin forever
-        BT::InputPort<double>("speed"),
-        // BT::InputPort<int>("direction"), // 1: left, -1: right
-        BT::InputPort<bool>("forever")
+        BT::InputPort<std::string>("confidence"),
+        BT::InputPort<perception_system_interfaces::msg::Detection>("target"),
+        BT::InputPort<std::string>("what"),
+        BT::OutputPort<int>("direction")
       });
   }
 
 private:
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
 
-  rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr vel_pub_;
+  std::string target_;
+  double confidence_;
 
-  double angle_, rotated_angle_, speed_;
-  bool forever_;
-  // int direction_;
-  
-  std::chrono::time_point<std::chrono::high_resolution_clock> last_time_;
 };
 
-}  // namespace base
+}  // namespace perception
 
-#endif  // BASE_ROTATE_HPP_
+#endif  // PERCEPTION_IS_IN_FRONT_HPP_

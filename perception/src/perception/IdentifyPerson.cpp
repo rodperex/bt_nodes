@@ -40,26 +40,25 @@ BT::NodeStatus
 IdentifyPerson::tick()
 {
   std::vector<perception_system_interfaces::msg::Detection> detections;
-
+  perception_system_interfaces::msg::Detection person_detection;
   try
   {    
 
     if (get_features_) // Configure perception system to track the specified person
     {
       RCLCPP_INFO(node_->get_logger(), "Storing detection of %s", person_.c_str());
-      detections = pl::getInstance(node_)->get_by_type("person");
-
-      std::sort(
-        detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
-        return a.center3d.position.z < b.center3d.position.z;
-      });
-
-      // detections = pl::getInstance(node_)->set_features_of_interest(detections[0]);
+      // detections = pl::getInstance(node_)->get_by_type("person");
+      // std::sort(
+      //   detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
+      //   return a.center3d.position.z < b.center3d.position.z;
+      // });
+      getInput("detection", person_detection);
+      // detections = pl::getInstance(node_)->set_features_of_interest(person_detection);
       config().blackboard->set(person_, detections[0]);
     }
     
     RCLCPP_INFO(node_->get_logger(), "Getting detection of %s", person_.c_str());
-    perception_system_interfaces::msg::Detection person_detection;
+    
     config().blackboard->get(person_, person_detection);
     detections = pl::getInstance(node_)->get_by_features(person_detection, confidence_);
 

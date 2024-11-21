@@ -17,20 +17,23 @@
 
 #include <algorithm>
 #include <string>
+#include <utility>
 
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
-#include "hri/dialog/BTActionNode.hpp"
+#include "ctrl_support/BTActionNode.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_cascade_lifecycle/rclcpp_cascade_lifecycle.hpp"
 #include "std_msgs/msg/int8.hpp"
 #include "whisper_msgs/action/stt.hpp"
 
-namespace dialog
+#include "std_msgs/msg/int8.hpp"
+
+namespace hri
 {
 
 class DialogConfirmation
-  : public dialog::BtActionNode<
+  : public hri::BtActionNode<
     whisper_msgs::action::STT, rclcpp_cascade_lifecycle::CascadeLifecycleNode>
 {
 public:
@@ -41,10 +44,18 @@ public:
   void on_tick() override;
   BT::NodeStatus on_success() override;
 
-  static BT::PortsList providedPorts() {return BT::PortsList({});}
+  static BT::PortsList providedPorts()
+  {
+    return BT::PortsList(
+      {
+        BT::InputPort<std::string>("language"), // es/en
+      });
+  }
 
 private:
   rclcpp::Publisher<std_msgs::msg::Int8>::SharedPtr speech_start_publisher_;
+
+  std::string lang_;
   
   const int START_LISTENING_{0};
 };

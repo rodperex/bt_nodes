@@ -42,6 +42,7 @@ include_directories(include)
 add_library(navigate_to_bt_node SHARED src/motion/navigation/NavigateTo.cpp)
 add_library(navigate_through_bt_node SHARED src/motion/navigation/NavigateThrough.cpp)
 add_library(spin_bt_node SHARED src/motion/base/Spin.cpp)
+add_library(face_bt_node SHARED src/motion/base/Face.cpp)
 add_library(pan_bt_node SHARED src/motion/head/Pan.cpp)
 
 list(APPEND
@@ -49,6 +50,7 @@ list(APPEND
   navigate_to_bt_node
   navigate_through_bt_node
   spin_bt_node
+  face_bt_node
   pan_bt_node
 )
 
