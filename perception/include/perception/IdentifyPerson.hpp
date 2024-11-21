@@ -50,7 +50,8 @@ public:
     return BT::PortsList(
       {
         BT::InputPort<std::string>("person_to_identify"),
-        BT::InputPort<bool>("get_features") // If true, features are saved. If false, features were already saved
+        BT::InputPort<bool>("get_features"), // If true, features are saved. If false, features were already saved
+        BT::InputPort<double>("confidence")
       });
   }
 
@@ -61,8 +62,7 @@ private:
   std::string person_;
   bool get_features_;
 
-  // tf2::BufferCore tf_buffer_;
-  // tf2_ros::TransformListener tf_listener_;
+  float confidence_;
   
 };
 

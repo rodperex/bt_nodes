@@ -24,40 +24,61 @@ IdentifyPerson::IdentifyPerson(
   const std::string & xml_tag_name,
   const BT::NodeConfiguration & conf)
 : BT::ActionNodeBase(xml_tag_name, conf),
-  person_("")
-  // get_features_(false),
-  // tf_buffer_(),
-  // tf_listener_(tf_buffer_)
+  person_(""),
+  get_features_(false),
+  confidence_(0.5)
 {
   config().blackboard->get("node", node_);
+
   getInput("person_to_identify", person_);
   getInput("get_features", get_features_);
+  
   static_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node_);
 }
 
 BT::NodeStatus
 IdentifyPerson::tick()
 {
+  std::vector<perception_system_interfaces::msg::Detection> detections;
+
   try
   {    
-    // // Get the transform from map to the person
-    // auto map2person_msg = tf_buffer_.lookupTransform("map", person_, tf2::TimePointZero);
-    // tf2::Stamped<tf2::Transform> map2person;
-    // tf2::fromMsg(map2person_msg, map2person);
-
-    // // Publish transform
-    // static_broadcaster_->sendTransform(tf2::toMsg(map2person));
 
     if (get_features_) // Configure perception system to track the specified person
     {
-      // pl::getInstance(node_)->set_features_of_interest(person_);
+      RCLCPP_INFO(node_->get_logger(), "Storing detection of %s", person_.c_str());
+      detections = pl::getInstance(node_)->get_by_type("person");
+
+      std::sort(
+        detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
+        return a.center3d.position.z < b.center3d.position.z;
+      });
+
+      // detections = pl::getInstance(node_)->set_features_of_interest(detections[0]);
+      config().blackboard->set(person_, detections[0]);
     }
-    // Get the detection of the person with the previously configured features
-    perception_system_interfaces::msg::Detection detection;
-    // detection = pl::getInstance(node_)->get_by_features(person_);
+    
+    RCLCPP_INFO(node_->get_logger(), "Getting detection of %s", person_.c_str());
+    perception_system_interfaces::msg::Detection person_detection;
+    config().blackboard->get(person_, person_detection);
+    detections = pl::getInstance(node_)->get_by_features(person_detection, confidence_);
+
+    std::sort(
+      detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
+        return a.score > b.score;
+    });
+
+    if (detections.empty())
+    {
+      RCLCPP_WARN(node_->get_logger(), "%s NOT detected", person_.c_str());
+      return BT::NodeStatus::FAILURE;
+    }
+
+    RCLCPP_DEBUG(node_->get_logger(), "%s detected with confidence %f", person_.c_str(), detections[0].score);
+
     // Publish the detection
-    pl::getInstance(node_)->publicTF(detection, person_);
-  
+    pl::getInstance(node_)->publishTF(detections[0], person_);
+    
     return BT::NodeStatus::SUCCESS;
   }
   catch(const std::exception& ex)
@@ -68,7 +89,6 @@ IdentifyPerson::tick()
   
   return BT::NodeStatus::RUNNING;
 }
-
 
 }  // namespace perception
 

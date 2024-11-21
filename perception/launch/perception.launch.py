@@ -23,19 +23,19 @@ import yaml
 
 def generate_launch_description():
     # Get the launch directory
-    pkg_dir = get_package_share_directory('motion_bt_nodes')
+    pkg_dir = get_package_share_directory('perception_bt_nodes')
     
-    params_file = os.path.join(pkg_dir, 'config', 'nav.yaml')
+    params_file = os.path.join(pkg_dir, 'config', 'perception.yaml')
     # print('params_file: ', params_file)
     with open(params_file, 'r') as f:
-        params = yaml.safe_load(f)['nav_node']['ros__parameters']
+        params = yaml.safe_load(f)['perception_node']['ros__parameters']
     # print(params)
 
     ld = LaunchDescription()
 
     nav_cmd = Node(
-        package='motion_bt_nodes',
-        executable='nav_test',
+        package='perception_bt_nodes',
+        executable='perception_test',
         output='screen',
         remappings=[
         ],

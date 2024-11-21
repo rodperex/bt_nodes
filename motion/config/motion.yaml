@@ -1,7 +1,8 @@
 nav_node:
   ros__parameters:
     use_sim_time: True
-    bt_xml_file: nav_through.xml
+    bt_xml_file: spin.xml
     plugins:
     - navigate_to_bt_node
     - navigate_through_bt_node
+    - spin_bt_node

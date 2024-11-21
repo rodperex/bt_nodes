@@ -51,13 +51,15 @@ void NavigateTo::on_tick()
       setStatus(BT::NodeStatus::RUNNING);
     }
     
-    goal.pose.position.x = map_to_goal.transform.translation.x;
-    goal.pose.position.y = map_to_goal.transform.translation.y;
-    goal.pose.orientation.x = map_to_goal.transform.rotation.x;
-    goal.pose.orientation.y = map_to_goal.transform.rotation.y;
-    goal.pose.orientation.z = map_to_goal.transform.rotation.z;
-    goal.pose.orientation.w = map_to_goal.transform.rotation.w;
+    // goal.pose.position.x = map_to_goal.transform.translation.x;
+    // goal.pose.position.y = map_to_goal.transform.translation.y;
+    // goal.pose.orientation.x = map_to_goal.transform.rotation.x;
+    // goal.pose.orientation.y = map_to_goal.transform.rotation.y;
+    // goal.pose.orientation.z = map_to_goal.transform.rotation.z;
+    // goal.pose.orientation.w = map_to_goal.transform.rotation.w;
 
+      goal.header.frame_id = tf_frame;
+      goal.pose.position.z = 0.0;
   } else { // No TF, use coordinates
 
     getInput("x", goal.pose.position.x);

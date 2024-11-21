@@ -25,9 +25,19 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
   max_depth_(std::numeric_limits<double>::max()),
   max_entities_(1)
 {
+  std::string what;
   config().blackboard->get("node", node_);
+  config().blackboard->get("what", what);
 
-  // node_->add_activation("perception_system/perception_people_detection")
+  if (what == "person") {
+    node_->add_activation("perception_system/perception_people_detection");
+  } else if (what == "object") {
+    node_->add_activation("perception_system/perception_object_detection");
+  } else {
+    RCLCPP_ERROR(node_->get_logger(), "[IsDetected] Unknown what: %s. Activating generic", what.c_str());
+    node_->add_activation("perception_system/perception_object_detection");
+  }
+  
 
   getInput("interest", interest_);
   getInput("cam_frame", cam_frame_);
@@ -35,19 +45,23 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
   getInput("max_entities", max_entities_);
   getInput("order", order_);
   getInput("max_depth", max_depth_);
-  getInput("person_id", person_id_);
+  // getInput("person_id", person_id_);
+
+  RCLCPP_INFO(node_->get_logger(), "Interest: %s", interest_.c_str());
+
+  frames_.clear();
 }
 
 BT::NodeStatus IsDetected::tick()
 {
   rclcpp::spin_some(node_->get_node_base_interface());
-  getInput("person_id", person_id_);
 
   if (status() == BT::NodeStatus::IDLE) {
-    RCLCPP_INFO(node_->get_logger(), "IsDetected ticked while IDLE");
+    RCLCPP_DEBUG(node_->get_logger(), "IsDetected ticked while IDLE");
   }
 
   RCLCPP_DEBUG(node_->get_logger(), "IsDetected ticked");
+
   pl::getInstance(node_)->set_interest(interest_, true);
   pl::getInstance(node_)->update(35);
 
@@ -58,7 +72,7 @@ BT::NodeStatus IsDetected::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  RCLCPP_DEBUG(node_->get_logger(), "[IsDetected] Processing %ld detections...", detections.size());
+  RCLCPP_INFO(node_->get_logger(), "[IsDetected] Processing %ld detections...", detections.size());
 
   if (order_ == "color") {
     // sorted by the distance to the color person we should sort it by distance and also by left to right or right to left
@@ -80,15 +94,12 @@ BT::NodeStatus IsDetected::tick()
 
   // pub->publish(detections[0].image);
 
-  setOutput("best_detection", detections[0].class_name);
-  RCLCPP_INFO(node_->get_logger(), "[IsDetected] Detections sorted");
 
   RCLCPP_DEBUG(node_->get_logger(), "[IsDetected] Max Depth: %f", max_depth_);
   RCLCPP_DEBUG(node_->get_logger(), "[IsDetected] Threshold: %f", threshold_);
   auto entity_counter = 0;
   for (auto it = detections.begin(); it != detections.end() && entity_counter < max_entities_; ) {
     auto const & detection = *it;
-
     if (detection.score <= threshold_ || detection.center3d.position.z > max_depth_) {
       RCLCPP_DEBUG(
         node_->get_logger(), "[IsDetected] Removing detection %s", detection.class_name.c_str());
@@ -98,24 +109,26 @@ BT::NodeStatus IsDetected::tick()
 
     } else {
       frames_.push_back(detection.class_name + "_" + std::to_string(entity_counter));
-      if (pl::getInstance(node_)->publicTF(detection, std::to_string(entity_counter)) == -1) {
+      if (pl::getInstance(node_)->publishTF(detection, std::to_string(entity_counter)) == -1) {
         return BT::NodeStatus::FAILURE;
       }
       ++it;
       ++entity_counter;
     }
   }
-
+  
   RCLCPP_DEBUG(node_->get_logger(), "[IsDetected] Detections sorted and filtered");
   if (frames_.empty()) {
-    RCLCPP_ERROR(node_->get_logger(), "[IsDetected] No detections after filter");
+    RCLCPP_ERROR(node_->get_logger(), "[IsDetected] No detections after filtering");
     return BT::NodeStatus::FAILURE;
   }
+  
+  RCLCPP_INFO(node_->get_logger(), "[IsDetected] A %s has been found with the provided conditions", detections[0].class_name.c_str());
+  setOutput("best_detection", detections[0].class_name);
+  // setOutput("frames", frames_);
+  setOutput("frame", frames_[0]);
 
-  setOutput("frames", frames_);
-  frames_.clear();
-
-  RCLCPP_DEBUG(node_->get_logger(), "Pointing direction: %d", detections[0].pointing_direction);
+  // frames_.clear();
 
   RCLCPP_DEBUG(node_->get_logger(), "[IsDetected] Detections published");
   return BT::NodeStatus::SUCCESS;

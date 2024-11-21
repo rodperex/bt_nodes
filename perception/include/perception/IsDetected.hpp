@@ -50,13 +50,14 @@ public:
     return BT::PortsList(
       {
         BT::InputPort<int>("max_entities"),
-        BT::InputPort<std::int64_t>("person_id"),
+        // BT::InputPort<std::int64_t>("person_id"),
+        BT::InputPort<std::string>("what"),
         BT::InputPort<std::string>("cam_frame"),
         BT::InputPort<std::string>("interest"),
         BT::InputPort<float>("confidence"),
         BT::InputPort<std::string>("order"),
         BT::InputPort<double>("max_depth"),
-        BT::OutputPort<std::vector<std::string>>("frames"), // TF frames of the detected entities
+        BT::OutputPort<std::string>("frame"), // TF frame of the detected entity
         BT::OutputPort<std::string>("best_detection")
       });
   }

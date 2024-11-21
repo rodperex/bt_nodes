@@ -28,7 +28,6 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "motion/navigation/utils.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
-#include "navigation_system_interfaces/srv/set_truncate_distance.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_cascade_lifecycle/rclcpp_cascade_lifecycle.hpp"
 

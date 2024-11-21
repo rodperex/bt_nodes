@@ -64,7 +64,7 @@ foreach(bt_plugin ${plugin_libs})
   target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)
 endforeach()
 
-add_executable(hri_test src/hri/main_hri.cpp)
+add_executable(hri_test src/main_hri.cpp)
 ament_target_dependencies(hri_test ${dependencies})
 target_link_libraries(hri_test ${ZMQ_LIBRARIES})
 
@@ -90,6 +90,9 @@ endif()
 
 ament_export_include_directories(include)
 ament_export_dependencies(${dependencies})
-ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
+
+foreach(bt_plugin ${plugin_libs})
+  ament_export_libraries(${bt_plugin})
+endforeach()
   
 ament_package()

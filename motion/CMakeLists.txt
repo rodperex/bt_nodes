@@ -15,13 +15,8 @@ find_package(nav2_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
-# find_package(nav2_costmap_2d REQUIRED)
-# find_package(pluginlib REQUIRED)
-find_package(navigation_system_interfaces REQUIRED)
-# find_package(slam_toolbox REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(trajectory_msgs REQUIRED)
-# find_package(lifecycle_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
@@ -37,13 +32,8 @@ set(dependencies
   tf2_ros
   tf2_geometry_msgs
   tf2
-  # nav2_costmap_2d
-  # pluginlib
-  navigation_system_interfaces
-  # slam_toolbox
   ament_index_cpp
   trajectory_msgs
-  # lifecycle_msgs
   sensor_msgs
 )
 
@@ -51,14 +41,14 @@ include_directories(include)
 
 add_library(navigate_to_bt_node SHARED src/motion/navigation/NavigateTo.cpp)
 add_library(navigate_through_bt_node SHARED src/motion/navigation/NavigateThrough.cpp)
-add_library(rotate_bt_node SHARED src/motion/base/Rotate.cpp)
+add_library(spin_bt_node SHARED src/motion/base/Spin.cpp)
 add_library(pan_bt_node SHARED src/motion/head/Pan.cpp)
 
 list(APPEND
   plugin_libs
   navigate_to_bt_node
   navigate_through_bt_node
-  rotate_bt_node
+  spin_bt_node
   pan_bt_node
 )
 
@@ -67,12 +57,12 @@ foreach(bt_plugin ${plugin_libs})
   target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)
 endforeach()
 
-add_executable(nav_test src/motion/main_nav.cpp)
-ament_target_dependencies(nav_test ${dependencies})
-target_link_libraries(nav_test ${ZMQ_LIBRARIES})
+add_executable(motion_test src/main_motion.cpp)
+ament_target_dependencies(motion_test ${dependencies})
+target_link_libraries(motion_test ${ZMQ_LIBRARIES})
 
 install(TARGETS
-  nav_test
+  motion_test
   ${plugin_libs}
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
@@ -84,10 +74,6 @@ install(DIRECTORY include launch config bt_xml
   DESTINATION share/${PROJECT_NAME}
 )
 
-# install(FILES clear_people_layer.xml
-#   DESTINATION share/${PROJECT_NAME}
-# )
-
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)
@@ -96,9 +82,10 @@ if(BUILD_TESTING)
 endif()
 
 ament_export_include_directories(include)
-# ament_export_libraries(clear_people_layer)
 ament_export_dependencies(${dependencies})
-ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
-# pluginlib_export_plugin_description_file(nav2_costmap_2d clear_people_layer.xml)
 
+foreach(bt_plugin ${plugin_libs})
+  ament_export_libraries(${bt_plugin})
+endforeach()
+  
 ament_package()

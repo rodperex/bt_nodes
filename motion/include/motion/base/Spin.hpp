@@ -34,10 +34,10 @@
 namespace base
 {
 
-class Rotate : public BT::ActionNodeBase
+class Spin : public BT::ActionNodeBase
 {
 public:
-  explicit Rotate(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
+  explicit Spin(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
   void halt();
   BT::NodeStatus tick();
@@ -47,7 +47,8 @@ public:
     return BT::PortsList(
       {
         BT::InputPort<double>("angle"), // if -1, it will spin forever
-        BT::InputPort<double>("speed")
+        BT::InputPort<double>("speed"),
+        BT::InputPort<int>("direction") // 1: left, -1: right
       });
   }
 
@@ -57,10 +58,12 @@ private:
   rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr vel_pub_;
 
   double angle_, rotated_angle_, speed_;
+
+  int direction_;
   
   std::chrono::time_point<std::chrono::high_resolution_clock> last_time_;
 };
 
-}  // namespace navigation
+}  // namespace base
 
 #endif  // NAVIGATION__ROTATE_HPP_
