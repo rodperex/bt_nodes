@@ -4,11 +4,11 @@
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
             <ReactiveFallback>
-                <Condition ID="IsDetected" best_detection="" cam_frame="head_front_camera_link" confidence="0.6" detection="{chair}" frame="{a_chair}" interest="chair" max_depth="50" max_entities="1" order="depth"/>
+                <Condition ID="IsDetected" cam_frame="head_front_camera_link" confidence="0.6" detection="{chair}" frame="{a_chair}" interest="chair" max_depth="50" max_entities="1" order="depth"/>
                 <Action ID="Spin" angle="-1" forever="true" speed="0.8"/>
             </ReactiveFallback>
             <ReactiveFallback>
-                <Condition ID="IsInFront" confidence="0.6" detection="" direction="{dir}" what="object"/>
+                <Condition ID="IsInFront" confidence="0.6" detection="" direction="{dir}" entity_to_identify="my_chair" what="object"/>
                 <Action ID="Spin" angle="{dir}" forever="true" speed="0.8"/>
             </ReactiveFallback>
         </Sequence>
@@ -17,11 +17,11 @@
     <TreeNodesModel>
         <Action ID="IdentifyPerson">
             <input_port name="detection"/>
+            <input_port name="entity_to_identify"/>
             <input_port name="get_features"/>
             <input_port name="person_to_identify"/>
         </Action>
         <Condition ID="IsDetected">
-            <!-- <output_port name="best_detection"/> -->
             <input_port default="head_front_camera_link" name="cam_frame"/>
             <input_port default="0.6" name="confidence"/>
             <output_port name="detection"/>
@@ -35,6 +35,7 @@
             <input_port default="0.6" name="confidence"/>
             <input_port name="detection"/>
             <output_port name="direction"/>
+            <input_port name="entity_to_identify"/>
             <input_port default="object" name="what"/>
         </Condition>
         <Action ID="IsPointing">

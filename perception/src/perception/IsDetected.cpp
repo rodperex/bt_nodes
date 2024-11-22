@@ -38,7 +38,8 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
     node_->add_activation("perception_system/perception_object_detection");
   }
   
-
+  node_->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_ACTIVATE);
+  
   getInput("interest", interest_);
   getInput("cam_frame", cam_frame_);
   getInput("confidence", threshold_);
@@ -68,7 +69,8 @@ BT::NodeStatus IsDetected::tick()
   auto detections = pl::getInstance(node_)->get_by_type(interest_);
 
   if (detections.empty()) {
-    RCLCPP_WARN(node_->get_logger(), "No detections");
+    // RCLCPP_WARN(node_->get_logger(), "No detections");
+    RCLCPP_DEBUG(node_->get_logger(), "No detections");
     return BT::NodeStatus::FAILURE;
   }
 
@@ -108,10 +110,13 @@ BT::NodeStatus IsDetected::tick()
       it = detections.erase(it);
 
     } else {
-      frames_.push_back(detection.class_name + "_" + std::to_string(entity_counter + 1));
-      if (pl::getInstance(node_)->publishTF(detection, std::to_string(entity_counter)) == -1) {
+      std::string tf_name;
+      tf_name = detection.class_name + "_" + std::to_string(entity_counter + 1);
+      frames_.push_back(tf_name);
+      if (pl::getInstance(node_)->publishTF(detection, tf_name) == -1) {
         return BT::NodeStatus::FAILURE;
       }
+      RCLCPP_INFO(node_->get_logger(), "Publishing TF %s", tf_name.c_str());
       ++it;
       ++entity_counter;
     }
@@ -128,7 +133,7 @@ BT::NodeStatus IsDetected::tick()
   setOutput("detection", detections[0]);
   setOutput("n_dectections", static_cast<int>(detections.size()) + 1);
   // setOutput("frames", frames_);
-  setOutput("frame", frames_[0]);
+  setOutput("frame", frames_[0]); // TF frame of the best detected entity
 
   // frames_.clear();
 

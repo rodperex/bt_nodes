@@ -49,6 +49,7 @@ public:
     return BT::PortsList(
       {
         BT::InputPort<std::string>("confidence"),
+        BT::InputPort<std::string>("entity_to_identify"),
         BT::InputPort<perception_system_interfaces::msg::Detection>("target"),
         BT::InputPort<std::string>("what"),
         BT::OutputPort<int>("direction")
@@ -60,6 +61,8 @@ private:
 
   std::string target_;
   double confidence_;
+
+  std::string entity_;
 
 };
 

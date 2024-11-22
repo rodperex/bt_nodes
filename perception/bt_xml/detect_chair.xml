@@ -4,20 +4,36 @@
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
             <ReactiveFallback>
-                <Condition ID="IsDetected" best_detection="" cam_frame="head_front_camera_link" confidence="0.6" detection="{chair}" frame="{a_chair}" interest="chair" max_depth="50" max_entities="1" order="depth"/>
-                <Action ID="Spin" angle="-1" direction="-1" speed="0.8"/>
+                <Condition ID="IsDetected" confidence="0.6" frame="{chair}" interest="chair" max_depth="50" max_entities="1" order="depth"/>
+                <Action ID="Spin" angle="-1" forever="true" speed="0.8"/>
             </ReactiveFallback>
-            <Action ID="NavigateTo" distance_tolerance="0.0" tf_frame="{a_chair}" will_finish="true" x="" y=""/>
+            <Action ID="NavigateTo" distance_tolerance="0.0" tf_frame="{chair}" will_finish="true" x="" y=""/>
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
     <TreeNodesModel>
+        <Action ID="CheckEndTest"/>
+        <Action ID="DialogConfirmation">
+            <input_port default="en" name="language"/>
+        </Action>
+        <Condition ID="DistanceReached">
+            <input_port name="distance"/>
+        </Condition>
+        <Action ID="EndTest">
+            <output_port name="time">Time needed to complete the gait speed test</output_port>
+        </Action>
+        <Action ID="FilterEntity">
+            <inout_port name="frame"/>
+            <inout_port name="lambda"/>
+        </Action>
+        <Action ID="FollowPerson"/>
         <Action ID="IdentifyPerson">
+            <input_port name="detection"/>
+            <input_port name="entity_to_identify"/>
             <input_port name="get_features"/>
             <input_port name="person_to_identify"/>
         </Action>
         <Condition ID="IsDetected">
-            <!-- <output_port name="best_detection"/> -->
             <input_port default="head_front_camera_link" name="cam_frame"/>
             <input_port default="0.6" name="confidence"/>
             <output_port name="detection"/>
@@ -27,6 +43,13 @@
             <input_port default="1" name="max_entities"/>
             <input_port default="depth" name="order"/>
         </Condition>
+        <Condition ID="IsInFront">
+            <input_port default="0.6" name="confidence"/>
+            <input_port name="detection"/>
+            <output_port name="direction"/>
+            <input_port name="entity_to_identify"/>
+            <input_port default="object" name="what"/>
+        </Condition>
         <Action ID="IsPointing">
             <input_port name="camera_frame"/>
             <input_port name="high_pointing_limit"/>
@@ -34,18 +57,68 @@
             <input_port name="output_frame"/>
             <output_port name="pointing_direction"/>
         </Action>
+        <Action ID="IsWaving">
+            <input_port name="cam_frame"/>
+            <output_port name="person_frame"/>
+        </Action>
+        <Action ID="Listen">
+            <inout_port name="listened_text"/>
+        </Action>
+        <Action ID="LookAt">
+            <inout_port name="tf_frame"/>
+        </Action>
+        <Action ID="MoveTo">
+            <input_port name="distance_tolerance"/>
+            <input_port name="is_truncated"/>
+            <input_port name="tf_frame"/>
+        </Action>
         <Action ID="NavigateTo">
             <input_port name="distance_tolerance">How far from the target</input_port>
+            <input_port name="is_truncated">True in case we do not want to reach the destination but to stay close</input_port>
             <input_port name="tf_frame">Where to navigate</input_port>
             <input_port name="will_finish">False in case it is navigating to follow something</input_port>
-            <input_port name="x"/>
-            <input_port name="y"/>
+        </Action>
+        <Action ID="Pan">
+            <inout_port name="period"/>
+            <inout_port name="pitch_angle"/>
+            <inout_port name="range"/>
+        </Action>
+        <Action ID="PublishCurrentInterestPose">
+            <input_port name="interest">Current interest of the robot. A static transform in relation to odom will be published</input_port>
+        </Action>
+        <Action ID="Speak">
+            <input_port name="param"/>
+            <input_port name="say_text"/>
         </Action>
         <Action ID="Spin">
             <input_port name="angle"/>
-            <input_port default="-1" name="direction">1: left; -1: right</input_port>
+            <input_port default="false" name="forever"/>
             <input_port name="speed"/>
         </Action>
+        <Action ID="StartTest"/>
+        <Condition ID="TargetReached"/>
+        <Condition ID="TargetReachedStatic"/>
+        <SubTree ID="confirm"/>
+        <SubTree ID="confirm_old">
+            <input_port default="false" name="__shared_blackboard">If false (default), the Subtree has an isolated blackboard and needs port remapping</input_port>
+        </SubTree>
+        <SubTree ID="find_patient_rotating">
+            <input_port default="true" name="__shared_blackboard">If false  , the Subtree has an isolated blackboard and needs port remapping</input_port>
+        </SubTree>
+        <SubTree ID="find_person"/>
+        <SubTree ID="find_person_rotating">
+            <input_port default="true" name="__shared_blackboard">If false  , the Subtree has an isolated blackboard and needs port remapping</input_port>
+        </SubTree>
+        <SubTree ID="find_waving_person"/>
+        <SubTree ID="find_waving_person_rotating"/>
+        <SubTree ID="gait_speed_dist"/>
+        <SubTree ID="gait_speed_dist_following">
+            <input_port default="false" name="__shared_blackboard">If false (default), the Subtree has an isolated blackboard and needs port remapping</input_port>
+        </SubTree>
+        <Condition ID="isMyPerson">
+            <input_port name="person_frame"/>
+        </Condition>
+        <SubTree ID="listen"/>
     </TreeNodesModel>
     <!-- ////////// -->
 </root>

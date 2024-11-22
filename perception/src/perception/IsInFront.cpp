@@ -28,6 +28,7 @@ IsInFront::IsInFront(const std::string & xml_tag_name, const BT::NodeConfigurati
   getInput("target", target_);
   getInput("conficende", confidence_);
   getInput("what", what);
+  getInput("entity_to_identify", entity_);
 
   if (what == "person") {
     node_->add_activation("perception_system/perception_people_detection");
@@ -57,6 +58,8 @@ BT::NodeStatus IsInFront::tick()
     return BT::NodeStatus::FAILURE;
   }
 
+  detection = detections[0];
+
   // double dx = detection.center3d.position.x;
   // double dy = detection.center3d.position.y;
   // double yaw = atan2(dx, -dy);
@@ -73,6 +76,8 @@ BT::NodeStatus IsInFront::tick()
   }
 
   // The detection is in front
+  // Publish the detection
+  pl::getInstance(node_)->publishTF(detection, entity_);
   setOutput("direction", 0);
   return BT::NodeStatus::SUCCESS;
   

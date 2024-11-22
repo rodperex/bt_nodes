@@ -48,7 +48,8 @@ void NavigateTo::on_tick()
     } catch (const tf2::TransformException & ex) {
       RCLCPP_WARN(
         node_->get_logger(), "Could not transform %s to %s: %s", "map", tf_frame.c_str(), ex.what());
-      setStatus(BT::NodeStatus::RUNNING);
+      setStatus(BT::NodeStatus::FAILURE);
+      return;
     }
     
     // goal.pose.position.x = map_to_goal.transform.translation.x;
@@ -64,7 +65,7 @@ void NavigateTo::on_tick()
 
     getInput("x", goal.pose.position.x);
     getInput("y", goal.pose.position.y);
-    RCLCPP_INFO(node_->get_logger(), "Setting goal to x: %f, y: %f", goal.pose.position.x, goal.pose.position.y);
+    RCLCPP_INFO(node_->get_logger(), "Setting goal to x: %.2f, y: %.2f", goal.pose.position.x, goal.pose.position.y);
     
     goal.pose.orientation.w = 1.0;
     goal.pose.orientation.x = 0.0;
@@ -75,7 +76,7 @@ void NavigateTo::on_tick()
   goal.header.frame_id = "map";
 
   RCLCPP_INFO(
-    node_->get_logger(), "Sending coordinates. Frame: %s", goal.header.frame_id.c_str());
+    node_->get_logger(), "Sending coordinates. Frame: %s, x: %f, y: %f", goal.header.frame_id.c_str(),goal.pose.position.x, goal.pose.position.y);
   
   if (distance_tolerance != 0) {
     RCLCPP_INFO(node_->get_logger(), "Setting distance tolerance to %f", distance_tolerance);
