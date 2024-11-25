@@ -1,3 +1,4 @@
 .gitingore
 _*.hpp
 _*.cpp
+_*.txt
