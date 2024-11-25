@@ -49,18 +49,16 @@ public:
   {
     return BT::PortsList(
       {
-        BT::InputPort<int>("max_entities"),
-        // BT::InputPort<std::int64_t>("person_id"),
-        BT::InputPort<std::string>("what"),
-        BT::InputPort<std::string>("cam_frame"),
-        BT::InputPort<std::string>("interest"),
-        BT::InputPort<float>("confidence"),
-        BT::InputPort<std::string>("order"),
-        BT::InputPort<double>("max_depth"),
-        BT::OutputPort<std::string>("frame"), // TF frame of the detected entity
-        // BT::OutputPort<std::string>("best_detection"),
-        BT::OutputPort<perception_system_interfaces::msg::Detection>("detection"),
-        BT::OutputPort<int>("n_detections"),
+        BT::InputPort<int>("max_entities"), // Max number of entities to consider
+        BT::InputPort<std::string>("model"), // YOLO model (object or person)
+        BT::InputPort<std::string>("cam_frame"), // Camera frame
+        BT::InputPort<std::string>("interest"), // What to look for
+        BT::InputPort<float>("confidence"), // Confidence threshold
+        BT::InputPort<std::string>("order"), // How to sort the detections
+        BT::InputPort<double>("max_depth"), // Max depth to consider
+        BT::OutputPort<perception_system_interfaces::msg::Detection>("best_detection"), // Best detected entity (first in the list)
+        BT::OutputPort<int>("n_detections"), // Number of detections found
+        BT::OutputPort<std::string>("frame") // Frame of the best detected entity (suffix: _1)
       });
   }
 

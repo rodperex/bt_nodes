@@ -10,7 +10,6 @@ find_package(ament_index_cpp REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_cascade_lifecycle REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
-# find_package(yolo_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(shape_msgs REQUIRED)
 find_package(rclpy REQUIRED)
@@ -33,13 +32,11 @@ set(dependencies
   rclcpp_cascade_lifecycle
   rclpy
   behaviortree_cpp_v3
-  # yolo_msgs
   tf2_ros
   geometry_msgs
   tf2_geometry_msgs
   tf2
   rclcpp_action
-  behaviortree_cpp_v3
   perception_system
   OpenCV
   perception_system_interfaces
@@ -49,30 +46,28 @@ set(dependencies
 
 include_directories(include)
 
-add_library(is_detected_bt_node SHARED src/perception/IsDetected.cpp)
-add_library(filter_entity_bt_node SHARED src/perception/FilterEntity.cpp)
-add_library(is_pointing_bt_node SHARED src/perception/IsPointing.cpp)
-add_library(identify_person_bt_node SHARED src/perception/IdentifyPerson.cpp)
-add_library(get_angle_bt_node SHARED src/perception/GetAngle.cpp)
-add_library(is_in_front_bt_node SHARED src/perception/IsInFront.cpp)
-
-list(APPEND plugin_libs
-  is_detected_bt_node
-  filter_entity_bt_node
-  is_pointing_bt_node
-  identify_person_bt_node
-  get_angle_bt_node
-  is_in_front_bt_node
+set(plugin_sources
+  src/perception/IsDetected.cpp
+  src/perception/FilterEntity.cpp
+  src/perception/IsPointing.cpp
+  src/perception/IdentifyPerson.cpp
+  src/perception/Identify.cpp
+  src/perception/GetAngle.cpp
+  src/perception/IsInFront.cpp
 )
 
-foreach(bt_plugin ${plugin_libs})
-  ament_target_dependencies(${bt_plugin} ${dependencies})
-  target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)
+set(plugin_libs "")
+
+foreach(src ${plugin_sources})
+  get_filename_component(plugin ${src} NAME_WE)
+  add_library(${plugin}_bt_node SHARED ${src})
+  ament_target_dependencies(${plugin}_bt_node ${dependencies})
+  target_compile_definitions(${plugin}_bt_node PRIVATE BT_PLUGIN_EXPORT)
+  list(APPEND plugin_libs ${plugin}_bt_node)
 endforeach()
 
 add_executable(perception_test src/main_perception.cpp)
 ament_target_dependencies(perception_test ${dependencies})
-target_link_libraries(perception_test ${ZMQ_LIBRARIES})
 
 install(TARGETS
   perception_test
@@ -87,22 +82,9 @@ install(DIRECTORY include launch config bt_xml
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(PROGRAMS
-  DESTINATION lib/${PROJECT_NAME}
-)
-
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  set(ament_cmake_copyright_FOUND TRUE)
-  set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
-
-ament_export_dependencies(${dependencies})
-ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-
-foreach(bt_plugin ${plugin_libs})
-  ament_export_libraries(${bt_plugin})
-endforeach()
 
 ament_package()

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 
-#ifndef IDENTIFY_PERSON_HPP_
-#define IDENTIFY_PERSON_HPP_
+#ifndef IDENTIFY_HPP_
+#define IDENTIFY_HPP_
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_cascade_lifecycle/rclcpp_cascade_lifecycle.hpp"
@@ -36,10 +36,10 @@ namespace perception
 using namespace std::chrono_literals;
 using std::placeholders::_1;
 
-class IdentifyPerson : public BT::ActionNodeBase
+class Identify : public BT::ActionNodeBase
 {
 public:
-  IdentifyPerson(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
+  Identify(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
   BT::NodeStatus tick();
   void halt() override
@@ -49,25 +49,25 @@ public:
   {
     return BT::PortsList(
       {
-        BT::InputPort<std::string>("person_to_identify"), // Name of the person to identify. Will be used as key in the blackboard
-                                                          // A TF frame with the name of the person will be published
-        BT::InputPort<bool>("get_features"), // If true, features are saved. If false, features were already saved
+        BT::InputPort<std::string>("entity_to_identify"), // Name of the entity to identify. Will be used as key in the blackboard
+                                                          // A TF frame with the name of the entity will be published
         BT::InputPort<double>("confidence"), // Confidence threshold
-        BT::InputPort<perception_system_interfaces::msg::Detection>("detection"), // Detection of the person to identify
+        BT::InputPort<perception_system_interfaces::msg::Detection>("detection"), // Detection of the entity to identify.
+                                                                                  // If present, it is stored in the blackboard for later use
       });
   }
 
 private:
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
-  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_broadcaster_;
 
-  std::string person_;
-  bool get_features_;
-
+  std::string entity_;
+  bool detection_at_input_;
   float confidence_;
+
+  perception_system_interfaces::msg::Detection detection_;
   
 };
 
 } // namespace perception
 
-#endif  // IDENTIFY_PERSON_HPP_
+#endif  // IDENTIFY_HPP_

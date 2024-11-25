@@ -22,20 +22,25 @@ using pl = perception_system::PerceptionListener;
 IsInFront::IsInFront(const std::string & xml_tag_name, const BT::NodeConfiguration & conf)
 : BT::ConditionNode(xml_tag_name, conf)
 {
-  std::string what;
+  std::string model;
   
   config().blackboard->get("node", node_);
-  getInput("target", target_);
-  getInput("conficende", confidence_);
-  getInput("what", what);
+
+  getInput("confidence", confidence_);
+  getInput("model", model);
   getInput("entity_to_identify", entity_);
 
-  if (what == "person") {
+  detection_at_input_ = true;
+  if (!getInput("detection", detection_)) {
+    detection_at_input_ = false;
+  }
+
+  if (model == "people") {
     node_->add_activation("perception_system/perception_people_detection");
-  } else if (what == "object") {
+  } else if (model == "object") {
     node_->add_activation("perception_system/perception_object_detection");
   } else {
-    RCLCPP_ERROR(node_->get_logger(), "Unknown what: %s. Activating generic", what.c_str());
+    RCLCPP_ERROR(node_->get_logger(), "Unknown model: %s. Activating generic", model.c_str());
     node_->add_activation("perception_system/perception_object_detection");
   }
 }
@@ -44,13 +49,14 @@ BT::NodeStatus IsInFront::tick()
   RCLCPP_DEBUG(node_->get_logger(), "IsInFront ticked");
 
   std::vector<perception_system_interfaces::msg::Detection> detections;
-  perception_system_interfaces::msg::Detection detection;
   
-  config().blackboard->get(target_, detection);
+  if (!detection_at_input_) {
+    config().blackboard->get(entity_, detection_);
+  }
 
   rclcpp::spin_some(node_->get_node_base_interface());
   
-  detections = pl::getInstance(node_)->get_by_features(detection, confidence_);
+  detections = pl::getInstance(node_)->get_by_features(detection_, confidence_);
 
   if (detections.empty()) {
     RCLCPP_ERROR(node_->get_logger(), "No detections found");
@@ -58,26 +64,26 @@ BT::NodeStatus IsInFront::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  detection = detections[0];
+  detection_ = detections[0];
 
   // double dx = detection.center3d.position.x;
   // double dy = detection.center3d.position.y;
   // double yaw = atan2(dx, -dy);
-  double yaw = atan2(detection.center3d.position.y, detection.center3d.position.x);
+  double yaw = atan2(detection_.center3d.position.y, detection_.center3d.position.x);
   yaw = yaw * 180.0 / M_PI;
 
   if (std::abs((yaw)) > 5.0) { // If the angle is greater than 5 degrees, the detection is not in front
     if (yaw > 0) {
-      setOutput("direction", 1);
+      setOutput("direction", 1); // Left
     } else {
-      setOutput("direction", -1);
+      setOutput("direction", -1); // Right
     }
     return BT::NodeStatus::FAILURE;
   }
 
   // The detection is in front
   // Publish the detection
-  pl::getInstance(node_)->publishTF(detection, entity_);
+  pl::getInstance(node_)->publishTF(detection_, entity_);
   setOutput("direction", 0);
   return BT::NodeStatus::SUCCESS;
   

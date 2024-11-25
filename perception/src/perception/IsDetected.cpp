@@ -25,16 +25,16 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
   max_depth_(std::numeric_limits<double>::max()),
   max_entities_(1)
 {
-  std::string what;
+  std::string model;
   config().blackboard->get("node", node_);
-  config().blackboard->get("what", what);
+  config().blackboard->get("model", model);
 
-  if (what == "person") {
+  if (model == "person") {
     node_->add_activation("perception_system/perception_people_detection");
-  } else if (what == "object") {
+  } else if (model == "object") {
     node_->add_activation("perception_system/perception_object_detection");
   } else {
-    RCLCPP_ERROR(node_->get_logger(), "Unknown what: %s. Activating generic", what.c_str());
+    RCLCPP_ERROR(node_->get_logger(), "Unknown model: %s. Activating generic", model.c_str());
     node_->add_activation("perception_system/perception_object_detection");
   }
   
@@ -130,7 +130,7 @@ BT::NodeStatus IsDetected::tick()
   
   RCLCPP_INFO(node_->get_logger(), "A %s has been found with the provided conditions", detections[0].class_name.c_str());
   // setOutput("best_detection", detections[0].class_name);
-  setOutput("detection", detections[0]);
+  setOutput("best_detection", detections[0]);
   setOutput("n_dectections", static_cast<int>(detections.size()) + 1);
   // setOutput("frames", frames_);
   setOutput("frame", frames_[0]); // TF frame of the best detected entity

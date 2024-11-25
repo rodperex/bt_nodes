@@ -173,8 +173,7 @@ BT::NodeStatus IsPointing::tick()
   // If someones is pointing, we return SUCCESS and populate output ports
   setOutput("detection", best_detection);
   setOutput("output_frame", output_frame_);
-  // setOutput("pointing_direction", direction);
-  // setOutput("person_id", best_detection.unique_id);
+  setOutput("pointing_direction", direction);
   
   return BT::NodeStatus::SUCCESS;
 }

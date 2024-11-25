@@ -48,10 +48,11 @@ public:
   {
     return BT::PortsList(
       {
-        BT::InputPort<std::string>("confidence"),
-        BT::InputPort<std::string>("entity_to_identify"),
-        BT::InputPort<perception_system_interfaces::msg::Detection>("target"),
-        BT::InputPort<std::string>("what"),
+        BT::InputPort<std::string>("confidence"), // Confidence threshold
+        BT::InputPort<std::string>("entity_to_identify"), // Name of the entity to check if is in front. Will be used as key in the blackboard
+                                                          // A TF frame with this name will be published
+        BT::InputPort<std::string>("model"), // YOLO model to use (people, object)
+        BT::InputPort<perception_system_interfaces::msg::Detection>("detection"), // Detection to check if is in front (optional)
         BT::OutputPort<int>("direction")
       });
   }
@@ -59,10 +60,10 @@ public:
 private:
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
 
-  std::string target_;
   double confidence_;
-
   std::string entity_;
+  bool detection_at_input_;
+  perception_system_interfaces::msg::Detection detection_;
 
 };
 
