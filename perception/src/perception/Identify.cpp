@@ -46,8 +46,7 @@ Identify::tick()
   try
   {    
 
-    if (detection_at_input_) // Configure perception system to track the specified person
-    {
+    if (detection_at_input_) { // Configure perception system to track the specified person
       RCLCPP_INFO(node_->get_logger(), "Storing detection of %s", entity_.c_str());
       // detections = pl::getInstance(node_)->get_by_type("person");
       // std::sort(
@@ -55,7 +54,7 @@ Identify::tick()
       //   return a.center3d.position.z < b.center3d.position.z;
       // });
       // getInput("detection", entity_detection);
-      // detections = pl::getInstance(node_)->set_features_of_interest(entity_detection);
+      // detections = pl::getInstance(node_)->set_features_of_interest(detection_);
       config().blackboard->set(entity_, detections[0]);
     }
     
