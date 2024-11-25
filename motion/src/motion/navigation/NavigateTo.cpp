@@ -42,7 +42,7 @@ void NavigateTo::on_tick()
   getInput("distance_tolerance", distance_tolerance);
 
   if (tf_frame.length() > 0) { // There is a TF to go, ignore coordinates
-    RCLCPP_INFO(node_->get_logger(), "Transforming %s to %s", "map", tf_frame.c_str());
+    RCLCPP_INFO(node_->get_logger(), "Transforming map to %s", tf_frame.c_str());
     try {
       map_to_goal = tf_buffer_.lookupTransform("map", tf_frame, tf2::TimePointZero);
     } catch (const tf2::TransformException & ex) {
