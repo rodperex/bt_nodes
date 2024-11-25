@@ -4,6 +4,6 @@ perception_node:
     bt_xml_file: detect_chair.xml
     plugins:
     - is_detected_bt_node
-    - identify_person_bt_node
+    - identify_bt_node
     - spin_bt_node
     - navigate_to_bt_node
