@@ -46,10 +46,9 @@ public:
   {
     return BT::PortsList(
       {
-        BT::InputPort<double>("angle"), // if -1, it will spin forever
-        BT::InputPort<double>("speed"),
-        // BT::InputPort<int>("direction"), // 1: left, -1: right
-        BT::InputPort<bool>("forever")
+        BT::InputPort<double>("angle"), // if negative, rotate right, if positive, rotate left
+        BT::InputPort<double>("speed"), // rad/s
+        BT::InputPort<bool>("forever") // if true, keep rotating
       });
   }
 
