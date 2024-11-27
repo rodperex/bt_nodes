@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motion/navigation/NavigateTo.hpp"
+#include "motion/navigation/navigate_to.hpp"
 
 namespace navigation
 {

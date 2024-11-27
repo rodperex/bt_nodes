@@ -52,12 +52,16 @@ public:
     return BT::PortsList(
       {
         BT::InputPort<std::string>("frame"),
-        BT::InputPort<float>("lambda", "filtering parameter"),
-        BT::OutputPort<std::string>("filtered_frame"),
+        BT::InputPort<float>("lambda", "filtering parameter")
       });
   }
 
 private:
+  geometry_msgs::msg::TransformStamped initialize_state_observer(
+    const geometry_msgs::msg::TransformStamped & entity);
+  geometry_msgs::msg::TransformStamped update_state_observer(
+    const geometry_msgs::msg::TransformStamped & entity);
+  
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
 
   std::string frame_;
@@ -69,11 +73,7 @@ private:
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
   geometry_msgs::msg::TransformStamped filtered_entity_;
-
-  geometry_msgs::msg::TransformStamped initialize_state_observer(
-    const geometry_msgs::msg::TransformStamped & entity);
-  geometry_msgs::msg::TransformStamped update_state_observer(
-    const geometry_msgs::msg::TransformStamped & entity);
+  
 };
 
 }  // namespace perception

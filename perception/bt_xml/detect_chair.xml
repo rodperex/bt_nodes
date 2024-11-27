@@ -7,27 +7,33 @@
                 <Condition ID="IsDetected" best_detection="" cam_frame="head_front_camera_link" confidence="0.6" frame="{chair}" interest="chair" max_depth="50" max_entities="1" model="object" order="depth"/>
                 <Action ID="Spin" angle="-1" forever="true" speed="0.8"/>
             </ReactiveFallback>
-            <Action ID="NavigateTo" distance_tolerance="0.0" is_truncated="" tf_frame="{chair}" will_finish="true"/>
+            <Action ID="NavigateTo" distance_tolerance="0.5" tf_frame="{chair}" will_finish="true" x="" y=""/>
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
     <TreeNodesModel>
+        <Action ID="Identify">
+            <input_port name="detection"/>
+            <input_port name="entity_to_identify"/>
+        </Action>
         <Condition ID="IsDetected">
             <output_port name="best_detection"/>
-            <inout_port default="head_front_camera_link" name="cam_frame"/>
+            <input_port default="head_front_camera_link" name="cam_frame"/>
             <input_port default="0.6" name="confidence"/>
             <output_port name="frame"/>
             <input_port default="person" name="interest"/>
             <input_port default="2" name="max_depth"/>
             <input_port default="1" name="max_entities"/>
             <input_port default="object" name="model"/>
+            <output_port name="n_detections"/>
             <input_port default="depth" name="order"/>
         </Condition>
         <Action ID="NavigateTo">
             <input_port name="distance_tolerance">How far from the target</input_port>
-            <input_port name="is_truncated">True in case we do not want to reach the destination but to stay close</input_port>
             <input_port name="tf_frame">Where to navigate</input_port>
             <input_port name="will_finish">False in case it is navigating to follow something</input_port>
+            <input_port name="x"/>
+            <input_port name="y"/>
         </Action>
         <Action ID="Spin">
             <input_port name="angle"/>

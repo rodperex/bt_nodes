@@ -13,54 +13,69 @@
 // limitations under the License.
 
 
-#include "perception/IdentifyPerson.hpp"
+#include "perception/identify.hpp"
 
 namespace perception
 {
 
 using pl = perception_system::PerceptionListener;
 
-IdentifyPerson::IdentifyPerson(
+Identify::Identify(
   const std::string & xml_tag_name,
   const BT::NodeConfiguration & conf)
 : BT::ActionNodeBase(xml_tag_name, conf),
-  person_(""),
-  get_features_(false),
+  entity_(""),
   confidence_(0.5)
 {
   config().blackboard->get("node", node_);
 
-  getInput("person_to_identify", person_);
-  getInput("get_features", get_features_);
+  getInput("entity_to_identify", entity_);
+  RCLCPP_INFO(node_->get_logger(), "Identifying %s", entity_.c_str());
+
+  if (!getInput("confidence", confidence_)) {
+    RCLCPP_WARN(node_->get_logger(), "No confidence provided. Using default value %f", confidence_);
+  }
   
-  static_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node_);
 }
 
 BT::NodeStatus
-IdentifyPerson::tick()
+Identify::tick()
 {
   std::vector<perception_system_interfaces::msg::Detection> detections;
-  perception_system_interfaces::msg::Detection person_detection;
+  // perception_system_interfaces::msg::Detection entity_detection;
+
+  // if (status() == BT::NodeStatus::IDLE) {
+    detection_at_input_ = true;
+    if (!getInput("detection", detection_)) {
+      RCLCPP_DEBUG(node_->get_logger(), "No detection at input");
+      detection_at_input_ = false;
+    }
+  // }
+
   try
   {    
 
-    if (get_features_) // Configure perception system to track the specified person
-    {
-      RCLCPP_INFO(node_->get_logger(), "Storing detection of %s", person_.c_str());
+    if (detection_at_input_) { // Configure perception system to track the specified person
+      RCLCPP_INFO(node_->get_logger(), "Storing detection of %s", entity_.c_str());
       // detections = pl::getInstance(node_)->get_by_type("person");
       // std::sort(
       //   detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
       //   return a.center3d.position.z < b.center3d.position.z;
       // });
-      getInput("detection", person_detection);
-      // detections = pl::getInstance(node_)->set_features_of_interest(person_detection);
-      config().blackboard->set(person_, detections[0]);
+      // getInput("detection", entity_detection);
+      // detections = pl::getInstance(node_)->set_features_of_interest(detection_);
+      config().blackboard->set(entity_, detection_);
     }
     
-    RCLCPP_INFO(node_->get_logger(), "Getting detection of %s", person_.c_str());
+    RCLCPP_INFO(node_->get_logger(), "Getting detection of %s", entity_.c_str());
     
-    config().blackboard->get(person_, person_detection);
-    detections = pl::getInstance(node_)->get_by_features(person_detection, confidence_);
+    if (!detection_at_input_) {
+      config().blackboard->get(entity_, detection_);
+      RCLCPP_INFO(node_->get_logger(), "Detection of %s retrieved", entity_.c_str());
+    }
+
+    pl::getInstance(node_)->update(30);
+    detections = pl::getInstance(node_)->get_by_features(detection_, confidence_);
 
     std::sort(
       detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
@@ -69,14 +84,14 @@ IdentifyPerson::tick()
 
     if (detections.empty())
     {
-      RCLCPP_WARN(node_->get_logger(), "%s NOT detected", person_.c_str());
+      RCLCPP_WARN(node_->get_logger(), "%s NOT detected", entity_.c_str());
       return BT::NodeStatus::FAILURE;
     }
 
-    RCLCPP_DEBUG(node_->get_logger(), "%s detected with confidence %f", person_.c_str(), detections[0].score);
+    RCLCPP_INFO(node_->get_logger(), "%s detected with confidence %f. Publishing TF", entity_.c_str(), detections[0].score);
 
     // Publish the detection
-    pl::getInstance(node_)->publishTF(detections[0], person_);
+    pl::getInstance(node_)->publishTF_EKF(detections[0], entity_, true);
     
     return BT::NodeStatus::SUCCESS;
   }
@@ -92,6 +107,6 @@ IdentifyPerson::tick()
 }  // namespace perception
 
 BT_REGISTER_NODES(factory) {
-  factory.registerNodeType<perception::IdentifyPerson>("IdentifyPerson");
+  factory.registerNodeType<perception::Identify>("Identify");
 }
 

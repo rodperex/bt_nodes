@@ -30,6 +30,7 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "perception_system/PerceptionListener.hpp"
 #include "perception_system_interfaces/msg/detection_array.hpp"
+#include "perception_system_interfaces/msg/detection.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_cascade_lifecycle/rclcpp_cascade_lifecycle.hpp"
 
@@ -50,7 +51,7 @@ public:
     return BT::PortsList(
       {
         BT::InputPort<int>("max_entities"), // Max number of entities to consider
-        BT::InputPort<std::string>("model"), // YOLO model (object or person)
+        BT::InputPort<std::string>("model"), // YOLO model (object or people)
         BT::InputPort<std::string>("cam_frame"), // Camera frame
         BT::InputPort<std::string>("interest"), // What to look for
         BT::InputPort<float>("confidence"), // Confidence threshold

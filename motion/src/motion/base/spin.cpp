@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motion/base/Spin.hpp"
+#include "motion/base/spin.hpp"
 
 namespace base
 {

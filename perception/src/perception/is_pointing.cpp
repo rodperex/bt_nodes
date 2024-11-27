@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "perception/IsPointing.hpp"
+#include "perception/is_pointing.hpp"
 
 
 namespace perception
@@ -153,7 +153,7 @@ BT::NodeStatus IsPointing::tick()
 
   // int direction = publish_detection_tf(best_detection);
   int direction;
-  pl::getInstance(node_)->publishTF(best_detection, output_frame_);
+  pl::getInstance(node_)->publishTF_EKF(best_detection, output_frame_, true);
   for (int i = low_pointing_limit_; i <= high_pointing_limit_; i++) {
     RCLCPP_INFO(
       node_->get_logger(), "Pointing direction %d",

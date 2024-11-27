@@ -3,7 +3,11 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <Condition ID="IsDetected" best_detection="{roi}" cam_frame="head_front_camera_link" confidence="0.6" frame="" interest="person" max_depth="2" max_entities="1" model="object" order="depth"/>
+            <Timeout msec="3000">
+                <RetryUntilSuccessful num_attempts="-1">
+                    <Condition ID="IsDetected" best_detection="{roi}" cam_frame="oak-d-base-frame" confidence="0.6" frame="" interest="person" max_depth="20" max_entities="1" model="people" n_detections="" order="depth"/>
+                </RetryUntilSuccessful>
+            </Timeout>
             <Action ID="Identify" detection="{roi}" entity_to_identify="roi"/>
             <KeepRunningUntilFailure>
                 <Action ID="Identify" detection="" entity_to_identify="roi"/>

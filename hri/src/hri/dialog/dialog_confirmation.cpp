@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "hri/dialog/DialogConfirmation.hpp"
+#include "hri/dialog/dialog_confirmation.hpp"
 
 
 

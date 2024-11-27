@@ -47,10 +47,10 @@ set(dependencies
 
 include_directories(include ${ZMQ_INCLUDE_DIRS})
 
-add_library(listen_bt_node SHARED src/hri/dialog/Listen.cpp)
-add_library(speak_bt_node SHARED src/hri/dialog/Speak.cpp)
-add_library(dialog_confirmation_bt_node SHARED src/hri/dialog/DialogConfirmation.cpp)
-add_library(query_bt_node SHARED src/hri/dialog/Query.cpp)
+add_library(listen_bt_node SHARED src/hri/dialog/listen.cpp)
+add_library(speak_bt_node SHARED src/hri/dialog/speak.cpp)
+add_library(dialog_confirmation_bt_node SHARED src/hri/dialog/dialog_confirmation.cpp)
+add_library(query_bt_node SHARED src/hri/dialog/query.cpp)
 
 list(APPEND plugin_libs
   listen_bt_node

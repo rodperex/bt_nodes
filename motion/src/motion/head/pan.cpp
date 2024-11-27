@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motion/head/Pan.hpp"
+#include "motion/head/pan.hpp"
 
 namespace head
 {

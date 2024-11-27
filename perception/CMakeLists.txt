@@ -47,13 +47,12 @@ set(dependencies
 include_directories(include)
 
 set(plugin_sources
-  src/perception/IsDetected.cpp
-  src/perception/FilterEntity.cpp
-  src/perception/IsPointing.cpp
-  src/perception/IdentifyPerson.cpp
-  src/perception/Identify.cpp
-  src/perception/GetAngle.cpp
-  src/perception/IsInFront.cpp
+  src/perception/is_detected.cpp
+  src/perception/filter_entity.cpp
+  src/perception/is_pointing.cpp
+  src/perception/identify.cpp
+  src/perception/get_angle.cpp
+  src/perception/is_in_front.cpp
 )
 
 set(plugin_libs "")

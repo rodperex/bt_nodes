@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motion/base/Face.hpp"
+#include "motion/base/face.hpp"
 
 namespace base
 {

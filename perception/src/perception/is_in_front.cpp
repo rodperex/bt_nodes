@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "perception/IsInFront.hpp"
+#include "perception/is_in_front.hpp"
 
 namespace perception
 {
@@ -83,7 +83,7 @@ BT::NodeStatus IsInFront::tick()
 
   // The detection is in front
   // Publish the detection
-  pl::getInstance(node_)->publishTF(detection_, entity_);
+  pl::getInstance(node_)->publishTF_EKF(detection_, entity_, true);
   setOutput("direction", 0);
   return BT::NodeStatus::SUCCESS;
   

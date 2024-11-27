@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "perception/IsDetected.hpp"
+#include "perception/is_detected.hpp"
 
 namespace perception
 {
@@ -25,20 +25,21 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
   max_depth_(std::numeric_limits<double>::max()),
   max_entities_(1)
 {
-  std::string model;
   config().blackboard->get("node", node_);
-  config().blackboard->get("model", model);
 
-  if (model == "person") {
+  std::string model;
+  getInput("model", model);
+
+  if (model == "people") {
+    RCLCPP_INFO(node_->get_logger(), "Activating perception_people_detection");
     node_->add_activation("perception_system/perception_people_detection");
   } else if (model == "object") {
+    RCLCPP_INFO(node_->get_logger(), "Activating perception_object_detection");
     node_->add_activation("perception_system/perception_object_detection");
   } else {
     RCLCPP_ERROR(node_->get_logger(), "Unknown model: %s. Activating generic", model.c_str());
     node_->add_activation("perception_system/perception_object_detection");
   }
-  
-  node_->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_ACTIVATE);
   
   getInput("interest", interest_);
   getInput("cam_frame", cam_frame_);
@@ -46,7 +47,6 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
   getInput("max_entities", max_entities_);
   getInput("order", order_);
   getInput("max_depth", max_depth_);
-  // getInput("person_id", person_id_);
 
   RCLCPP_INFO(node_->get_logger(), "Interest: %s", interest_.c_str());
 
@@ -56,6 +56,12 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
 BT::NodeStatus IsDetected::tick()
 {
   rclcpp::spin_some(node_->get_node_base_interface());
+  // getInput("interest", interest_);
+  // getInput("cam_frame", cam_frame_);
+  // getInput("confidence", threshold_);
+  // getInput("max_entities", max_entities_);
+  // getInput("order", order_);
+  // getInput("max_depth", max_depth_);
 
   if (status() == BT::NodeStatus::IDLE) {
     RCLCPP_DEBUG(node_->get_logger(), "IsDetected ticked while IDLE");
@@ -69,8 +75,8 @@ BT::NodeStatus IsDetected::tick()
   auto detections = pl::getInstance(node_)->get_by_type(interest_);
 
   if (detections.empty()) {
-    // RCLCPP_WARN(node_->get_logger(), "No detections");
-    RCLCPP_DEBUG(node_->get_logger(), "No detections");
+    RCLCPP_WARN(node_->get_logger(), "No detections");
+    // RCLCPP_DEBUG(node_->get_logger(), "No detections");
     return BT::NodeStatus::FAILURE;
   }
 
@@ -113,7 +119,7 @@ BT::NodeStatus IsDetected::tick()
       std::string tf_name;
       tf_name = detection.class_name + "_" + std::to_string(entity_counter + 1);
       frames_.push_back(tf_name);
-      if (pl::getInstance(node_)->publishTF(detection, tf_name) == -1) {
+      if (pl::getInstance(node_)->publishTF_EKF(detection, tf_name, true) == -1) {
         return BT::NodeStatus::FAILURE;
       }
       RCLCPP_INFO(node_->get_logger(), "Publishing TF %s", tf_name.c_str());
@@ -137,7 +143,7 @@ BT::NodeStatus IsDetected::tick()
 
   // frames_.clear();
 
-  RCLCPP_DEBUG(node_->get_logger(), "Detections published");
+  RCLCPP_INFO(node_->get_logger(), "Detections published");
   return BT::NodeStatus::SUCCESS;
 }
 

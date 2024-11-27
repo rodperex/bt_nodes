@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "perception/GetAngle.hpp"
+#include "perception/get_angle.hpp"
 
 namespace perception
 {

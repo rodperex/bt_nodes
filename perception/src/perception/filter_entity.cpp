@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "perception/FilterEntity.hpp"
+#include "perception/filter_entity.hpp"
 
-#include <limits>
-#include <string>
-#include <utility>
 
-#include "behaviortree_cpp_v3/behavior_tree.h"
 
 namespace perception
 {
@@ -36,7 +32,6 @@ FilterEntity::FilterEntity(const std::string & xml_tag_name, const BT::NodeConfi
 
   getInput("lambda", lambda_);
   tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(node_);
-  setOutput("filtered_frame", frame_ + "_filtered");
   RCLCPP_INFO(node_->get_logger(), "FilterEntity initialized");
 }
 
@@ -68,34 +63,37 @@ geometry_msgs::msg::TransformStamped FilterEntity::initialize_state_observer(
 BT::NodeStatus FilterEntity::tick()
 {
   getInput("frame", frame_);
-  RCLCPP_INFO(node_->get_logger(), "IsMoving filtering frame %s", frame_.c_str());
+  RCLCPP_INFO(node_->get_logger(), "Filtering frame %s", frame_.c_str());
 
   geometry_msgs::msg::TransformStamped entity_transform_now_msg;
 
   try {
-    entity_transform_now_msg = tf_buffer_->lookupTransform("odom", frame_, tf2::TimePointZero);
+    entity_transform_now_msg = tf_buffer_->lookupTransform("map", frame_, tf2::TimePointZero);
     RCLCPP_INFO(
-      node_->get_logger(), "Position %s to %s: %f %f %f", frame_.c_str(), "odom",
+      node_->get_logger(), "Transform %s to %s: %f %f %f", frame_.c_str(), "map",
       entity_transform_now_msg.transform.translation.x,
       entity_transform_now_msg.transform.translation.y,
       entity_transform_now_msg.transform.translation.z);
   } catch (const tf2::TransformException & ex) {
     RCLCPP_INFO(
-      node_->get_logger(), "Could not transform %s to %s: %s", frame_.c_str(), "odom", ex.what());
+      node_->get_logger(), "Could not transform %s to %s: %s", frame_.c_str(), "map", ex.what());
     RCLCPP_INFO(node_->get_logger(), "Cannot transform");
 
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::SUCCESS; // Never return FAILURE, the filter will try again next tick
   }
+  
   geometry_msgs::msg::TransformStamped filtered_entity;
-  if (state_obs_initialized_) {
-    filtered_entity = update_state_observer(entity_transform_now_msg);
-  } else {
-    filtered_entity = initialize_state_observer(entity_transform_now_msg);
-    state_obs_initialized_ = true;
-  }
-  filtered_entity.child_frame_id = frame_ + "_filtered";
+  // if (state_obs_initialized_) {
+  //   filtered_entity = update_state_observer(entity_transform_now_msg);
+  // } else {
+  //   filtered_entity = initialize_state_observer(entity_transform_now_msg);
+  //   state_obs_initialized_ = true;
+  // }
+
+  filtered_entity = update_state_observer(entity_transform_now_msg);
+  // filtered_entity.child_frame_id = frame_ + "_filtered";
   tf_broadcaster_->sendTransform(filtered_entity);
-  setOutput("filtered_frame", filtered_entity.child_frame_id);
+  // setOutput("filtered_frame", filtered_entity.child_frame_id);
   return BT::NodeStatus::SUCCESS;
 }
 

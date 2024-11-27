@@ -35,6 +35,7 @@ int main(int argc, char * argv[])
   std::string bt_xml_file;
   node->declare_parameter("plugins", plugins);
   node->declare_parameter("bt_xml_file", bt_xml_file);
+  // node->declare_parameter("tf_frame_camera", "");
   node->get_parameter("plugins", plugins);
   node->get_parameter("bt_xml_file", bt_xml_file);
 
