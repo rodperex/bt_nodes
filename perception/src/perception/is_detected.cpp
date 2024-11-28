@@ -75,7 +75,7 @@ BT::NodeStatus IsDetected::tick()
   auto detections = pl::getInstance(node_)->get_by_type(interest_);
 
   if (detections.empty()) {
-    RCLCPP_WARN(node_->get_logger(), "No detections");
+    RCLCPP_ERROR(node_->get_logger(), "No detections");
     // RCLCPP_DEBUG(node_->get_logger(), "No detections");
     return BT::NodeStatus::FAILURE;
   }
