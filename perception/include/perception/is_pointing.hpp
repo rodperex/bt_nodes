@@ -70,15 +70,9 @@ private:
   std::string camera_frame_, output_frame_;
   int low_pointing_limit_, high_pointing_limit_;
   int pointing_direction_;
+  float threshold_;
 
-  // std::int64_t person_id_;
-  
-  geometry_msgs::msg::TransformStamped person_pose_;
-  rclcpp::Time last_pose_;
-
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
-  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> tf_static_broadcaster_;
-};
+ };
 
 }  // namespace perception
 

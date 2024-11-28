@@ -25,7 +25,7 @@ using pl = perception_system::PerceptionListener;
 
 IsPointing::IsPointing(const std::string & xml_tag_name, const BT::NodeConfiguration & conf)
 : BT::ConditionNode(xml_tag_name, conf),
-  tf_buffer_()
+threshold_(0.6)
 {
   config().blackboard->get("node", node_);
 
@@ -34,40 +34,54 @@ IsPointing::IsPointing(const std::string & xml_tag_name, const BT::NodeConfigura
   getInput("high_pointing_limit", high_pointing_limit_);
   getInput("output_frame", output_frame_);
 
-  tf_static_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node_);
+  RCLCPP_INFO(node_->get_logger(), "Activating perception_people_detection");
+  node_->add_activation("perception_system/perception_people_detection");
 }
 
 BT::NodeStatus IsPointing::tick()
 {
+  rclcpp::spin_some(node_->get_node_base_interface());
   if (status() == BT::NodeStatus::IDLE) {
-    RCLCPP_INFO(node_->get_logger(), "IsPointing ticked while IDLE");
+    RCLCPP_DEBUG(node_->get_logger(), "IsPointing ticked while IDLE");
   }
 
   pl::getInstance(node_)->set_interest("person", true);
-  pl::getInstance(node_)->update(true);
-  rclcpp::spin_some(node_->get_node_base_interface());
+  pl::getInstance(node_)->update(35);
 
-  std::vector<perception_system_interfaces::msg::Detection> detections;
-  detections = pl::getInstance(node_)->get_by_type("person");
+  auto detections = pl::getInstance(node_)->get_by_type("person");
 
   if (detections.empty()) {
     RCLCPP_ERROR(node_->get_logger(), "No detections");
     return BT::NodeStatus::FAILURE;
   }
 
-  perception_system_interfaces::msg::Detection best_detection;
-
   // std::sort(
   //   detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
   //     return perception_system::diffIDs(this->person_id_, a.color_person) <
   //     perception_system::diffIDs(this->person_id_, b.color_person);
   //   });
+  
+  // Remove detections with low confidence
+  for (auto it = detections.begin(); it != detections.end(); ) {
+    auto const & detection = *it;
+    if (detection.score <= threshold_) {
+      RCLCPP_INFO(
+        node_->get_logger(), "Removing detection %s due to low confidence (%f)",
+          detection.class_name.c_str(), detection.score);
+      it = detections.erase(it); // If low confidence, remove and go to next
+    } else {
+      ++it; // If kept, just go to the next
+    }
+  }
 
-  best_detection = detections[0];
+  if (detections.empty()) {
+    RCLCPP_ERROR(node_->get_logger(), "No detections above confidence threshold");
+    return BT::NodeStatus::FAILURE;
+  }
 
-  RCLCPP_INFO(
-    node_->get_logger(), "Best detection: %s, color: %ld, pointing: %d",
-    best_detection.unique_id.c_str(), best_detection.color_person,
+  auto best_detection = detections[0];
+
+  RCLCPP_INFO(node_->get_logger(), "Best detection pointing direction: %d",
     best_detection.pointing_direction);
 
   int direction = -1;
@@ -91,7 +105,7 @@ BT::NodeStatus IsPointing::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  // If someones is pointing, we return SUCCESS and populate output ports
+  // If someones is pointing to a valid direction, return SUCCESS and populate output ports
   setOutput("detection", best_detection);
   setOutput("output_frame", output_frame_);
   setOutput("pointing_direction", direction);
