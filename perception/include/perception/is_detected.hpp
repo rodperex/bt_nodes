@@ -15,14 +15,8 @@
 #ifndef PERCEPTION__ISDETECTED_HPP_
 #define PERCEPTION__ISDETECTED_HPP_
 
-#include <tf2/transform_datatypes.h>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/static_transform_broadcaster.h>
-#include <tf2_ros/transform_listener.h>
-
 #include <algorithm>
 #include <string>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
@@ -65,7 +59,6 @@ public:
 
 private:
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
-  // std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
 
   std::string interest_, order_, cam_frame_;
   double threshold_, max_depth_;

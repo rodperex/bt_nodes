@@ -75,8 +75,7 @@ BT::NodeStatus IsDetected::tick()
   auto detections = pl::getInstance(node_)->get_by_type(interest_);
 
   if (detections.empty()) {
-    RCLCPP_ERROR(node_->get_logger(), "No detections");
-    // RCLCPP_DEBUG(node_->get_logger(), "No detections");
+    RCLCPP_ERROR(node_->get_logger(), "No %s detections", interest_.c_str());
     return BT::NodeStatus::FAILURE;
   }
 
@@ -135,10 +134,8 @@ BT::NodeStatus IsDetected::tick()
   }
   
   RCLCPP_INFO(node_->get_logger(), "A %s has been found with the provided conditions", detections[0].class_name.c_str());
-  // setOutput("best_detection", detections[0].class_name);
-  setOutput("best_detection", detections[0]);
+  setOutput("detection", detections[0]);
   setOutput("n_dectections", static_cast<int>(detections.size()) + 1);
-  // setOutput("frames", frames_);
   setOutput("frame", frames_[0]); // TF frame of the best detected entity
 
   // frames_.clear();
