@@ -19,12 +19,7 @@
 #include <string>
 #include <string>
 #include <utility>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
-#include <tf2/transform_datatypes.h>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/static_transform_broadcaster.h>
-#include <tf2_ros/transform_listener.h>
 
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
@@ -52,25 +47,22 @@ public:
   {
     return BT::PortsList(
       {
-        BT::InputPort<std::string>("camera_frame"),
         BT::InputPort<int>("low_pointing_limit"),
         BT::InputPort<int>("high_pointing_limit"),
-        // BT::InputPort<std::string>("output_frame"),
-        BT::BidirectionalPort<std::string>("output_frame"),
+        BT::InputPort<float>("threshold"),
+        BT::OutputPort<perception_system_interfaces::msg::Detection>("detection"),
         BT::OutputPort<int>("pointing_direction"),
-        BT::OutputPort<perception_system_interfaces::msg::Detection>("detection")
+        BT::OutputPort<std::string>("output_frame")
       });
   }
 
 private:
-  int publish_detection_tf(const perception_system_interfaces::msg::Detection & detection);
-
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
 
-  std::string camera_frame_, output_frame_;
+  std::string output_frame_ = "someone_pointing";
   int low_pointing_limit_, high_pointing_limit_;
   int pointing_direction_;
-  float threshold_;
+  float threshold_ = 0.6;
 
  };
 

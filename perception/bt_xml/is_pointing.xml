@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <ReactiveFallback>
+                <Condition ID="IsPointing" detection="" high_pointing_limit="7" low_pointing_limit="1" output_frame="{person}" pointing_direction="" threshold="0.6"/>
+                <Action ID="Spin" angle="-1" forever="true" speed="0.8"/>
+            </ReactiveFallback>
+            <Action ID="NavigateTo" distance_tolerance="0.5" tf_frame="{person}" will_finish="true" x="" y=""/>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="Identify">
+            <input_port name="detection"/>
+            <input_port name="entity_to_identify"/>
+        </Action>
+        <Condition ID="IsDetected">
+            <input_port default="0.6" name="confidence"/>
+            <output_port name="frames"/>
+            <input_port default="person" name="interest"/>
+            <input_port default="2" name="max_depth"/>
+            <input_port default="1" name="max_entities"/>
+            <input_port default="depth_nearest" name="order"/>
+        </Condition>
+        <Condition ID="IsPointing">
+            <output_port name="detection"/>
+            <input_port name="high_pointing_limit"/>
+            <input_port name="low_pointing_limit"/>
+            <output_port name="output_frame"/>
+            <output_port name="pointing_direction"/>
+            <input_port default="0.6" name="threshold"/>
+        </Condition>
+        <Action ID="NavigateTo">
+            <input_port name="distance_tolerance">How far from the target</input_port>
+            <input_port name="tf_frame">Where to navigate</input_port>
+            <input_port name="will_finish">False in case it is navigating to follow something</input_port>
+            <input_port name="x"/>
+            <input_port name="y"/>
+        </Action>
+        <Action ID="Spin">
+            <input_port name="angle"/>
+            <input_port name="forever"/>
+            <input_port name="speed"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
+</root>

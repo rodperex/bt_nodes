@@ -24,15 +24,13 @@ using namespace std::placeholders;
 using pl = perception_system::PerceptionListener;
 
 IsPointing::IsPointing(const std::string & xml_tag_name, const BT::NodeConfiguration & conf)
-: BT::ConditionNode(xml_tag_name, conf),
-threshold_(0.6)
+: BT::ConditionNode(xml_tag_name, conf)
 {
   config().blackboard->get("node", node_);
 
-  getInput("camera_frame", camera_frame_);
   getInput("low_pointing_limit", low_pointing_limit_);
   getInput("high_pointing_limit", high_pointing_limit_);
-  getInput("output_frame", output_frame_);
+  getInput("threshold", threshold_);
 
   RCLCPP_INFO(node_->get_logger(), "Activating perception_people_detection");
   node_->add_activation("perception_system/perception_people_detection");
@@ -54,6 +52,8 @@ BT::NodeStatus IsPointing::tick()
     RCLCPP_ERROR(node_->get_logger(), "No detections");
     return BT::NodeStatus::FAILURE;
   }
+
+  RCLCPP_INFO(node_->get_logger(), "Processing %ld detections...", detections.size());
 
   // std::sort(
   //   detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
@@ -79,7 +79,7 @@ BT::NodeStatus IsPointing::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  auto best_detection = detections[0];
+  perception_system_interfaces::msg::Detection best_detection = detections[0];
 
   RCLCPP_INFO(node_->get_logger(), "Best detection pointing direction: %d",
     best_detection.pointing_direction);
@@ -93,6 +93,7 @@ BT::NodeStatus IsPointing::tick()
       direction = i;
       RCLCPP_INFO(node_->get_logger(), "I like the direction the person is pointing at: %d", direction);
       setOutput("pointing_direction", direction);
+      setOutput("detection", best_detection);
       if (pl::getInstance(node_)->publishTF_EKF(best_detection, output_frame_, true) == -1) {
         return BT::NodeStatus::FAILURE;
       }
@@ -105,11 +106,11 @@ BT::NodeStatus IsPointing::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  // If someones is pointing to a valid direction, return SUCCESS and populate output ports
-  setOutput("detection", best_detection);
+  // If someones is pointing to a valid direction, return SUCCESS and populate remaining output ports
   setOutput("output_frame", output_frame_);
-  setOutput("pointing_direction", direction);
   
+  RCLCPP_INFO(node_->get_logger(), "Someone (%s) is pointing to a valid direction: %d", output_frame_.c_str(), direction);
+
   return BT::NodeStatus::SUCCESS;
 }
 
