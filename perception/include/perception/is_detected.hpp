@@ -51,7 +51,7 @@ public:
         BT::InputPort<float>("confidence"), // Confidence threshold
         BT::InputPort<std::string>("order"), // How to sort the detections
         BT::InputPort<double>("max_depth"), // Max depth to consider
-        BT::OutputPort<perception_system_interfaces::msg::Detection>("best_detection"), // Best detected entity (first in the list)
+        BT::OutputPort<std::shared_ptr<perception_system_interfaces::msg::Detection>>("best_detection"), // Best detected entity (first in the list)
         BT::OutputPort<int>("n_detections"), // Number of detections found
         BT::OutputPort<std::string>("frame") // Frame of the best detected entity (suffix: _1)
       });

@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <Timeout msec="3000">
+                <RetryUntilSuccessful num_attempts="-1">
+                    <Condition ID="IsDetected" best_detection="{patient}" confidence="0.6" interest="person" max_depth="20" max_entities="1" order="depth"/>
+                </RetryUntilSuccessful>
+            </Timeout>
+            <Action ID="Identify" confidence="0.6" detection="{patient}" entity_to_identify="patient"/>
+            <ReactiveFallback>
+                <ForceFailure>
+                    <Action ID="Identify" confidence="0.5" detection="" entity_to_identify="patient"/>
+                </ForceFailure>
+                <Condition ID="IsInFront" confidence="0.6" detection="" direction="{dir}" entity_to_identify="patient" model="people"/>
+                <Action ID="Spin" angle="{dir}" forever="true" speed="0.3"/>
+            </ReactiveFallback>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="Identify">
+            <input_port default="0.6" name="confidence"/>
+            <input_port name="detection"/>
+            <input_port name="entity_to_identify"/>
+        </Action>
+        <Condition ID="IsDetected">
+            <output_port name="best_detection"/>
+            <input_port default="0.6" name="confidence"/>
+            <input_port default="person" name="interest"/>
+            <input_port default="2" name="max_depth"/>
+            <input_port default="1" name="max_entities"/>
+            <input_port default="depth_nearest" name="order"/>
+        </Condition>
+        <Condition ID="IsInFront">
+            <input_port name="confidence"/>
+            <output_port name="detection"/>
+            <output_port name="direction"/>
+            <input_port name="entity_to_identify"/>
+            <input_port name="model"/>
+        </Condition>
+        <Action ID="Spin">
+            <input_port name="angle"/>
+            <input_port name="forever"/>
+            <input_port name="speed"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
+</root>

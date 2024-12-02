@@ -42,7 +42,6 @@ BT::NodeStatus
 Identify::tick()
 {
   std::vector<perception_system_interfaces::msg::Detection> detections;
-  // perception_system_interfaces::msg::Detection entity_detection;
 
   // if (status() == BT::NodeStatus::IDLE) {
     detection_at_input_ = true;
@@ -64,34 +63,41 @@ Identify::tick()
       // });
       // getInput("detection", entity_detection);
       // detections = pl::getInstance(node_)->set_features_of_interest(detection_);
-      config().blackboard->set(entity_, detection_);
-    }
-    
-    RCLCPP_INFO(node_->get_logger(), "Getting detection of %s", entity_.c_str());
-    
-    if (!detection_at_input_) {
-      config().blackboard->get(entity_, detection_);
+      config().blackboard->set<std::shared_ptr<perception_system_interfaces::msg::Detection>>(entity_, detection_);
+    } else {
+      config().blackboard->get<std::shared_ptr<perception_system_interfaces::msg::Detection>>(entity_, detection_);
       RCLCPP_INFO(node_->get_logger(), "Detection of %s retrieved", entity_.c_str());
     }
+    
+    // RCLCPP_INFO(node_->get_logger(), "Getting detection of %s", entity_.c_str());
+    
+    // if (!detection_at_input_) {
+    //   config().blackboard->get(entity_, detection_);
+    //   RCLCPP_INFO(node_->get_logger(), "Detection of %s retrieved", entity_.c_str());
+    // }
 
+    RCLCPP_INFO(node_->get_logger(), "Getting detection of %s from perception system", entity_.c_str());
     pl::getInstance(node_)->update(30);
-    detections = pl::getInstance(node_)->get_by_features(detection_, confidence_);
-
-    std::sort(
-      detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
-        return a.score > b.score;
-    });
+    detections = pl::getInstance(node_)->get_by_features(*detection_, confidence_);
 
     if (detections.empty())
     {
-      RCLCPP_WARN(node_->get_logger(), "%s NOT detected", entity_.c_str());
+      RCLCPP_WARN(node_->get_logger(), "Perception system did not identify %s", entity_.c_str());
       return BT::NodeStatus::FAILURE;
     }
 
-    RCLCPP_INFO(node_->get_logger(), "%s detected with confidence %f. Publishing TF", entity_.c_str(), detections[0].score);
+    // std::sort(
+    //   detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
+    //     return a.score > b.score;
+    // });
 
     // Publish the detection
+    RCLCPP_INFO(node_->get_logger(), "Perception system detected %s with confidence %f. Publishing TF", entity_.c_str(), detections[0].score);
     pl::getInstance(node_)->publishTF_EKF(detections[0], entity_, true);
+
+    // Update the blackboard with the detection
+    RCLCPP_INFO(node_->get_logger(), "Updating blackboard with detection of %s", entity_.c_str());
+    config().blackboard->set<std::shared_ptr<perception_system_interfaces::msg::Detection>>(entity_, std::make_shared<perception_system_interfaces::msg::Detection>(detections[0]));
     
     return BT::NodeStatus::SUCCESS;
   }

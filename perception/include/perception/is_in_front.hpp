@@ -34,6 +34,11 @@
 #include "perception_system/PerceptionListener.hpp"
 #include "perception_system_interfaces/msg/detection.hpp"
 
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+#include "tf2/transform_datatypes.h"
+
 namespace perception
 {
 
@@ -52,8 +57,8 @@ public:
         BT::InputPort<std::string>("entity_to_identify"), // Name of the entity to check if is in front. Will be used as key in the blackboard
                                                           // A TF frame with this name will be published
         BT::InputPort<std::string>("model"), // YOLO model to use (people, object)
-        BT::InputPort<perception_system_interfaces::msg::Detection>("detection"), // Detection to check if is in front (optional)
-        BT::OutputPort<int>("direction")
+        BT::InputPort<std::shared_ptr<perception_system_interfaces::msg::Detection>>("detection"), // Detection to check if is in front (optional)
+        BT::OutputPort<double>("direction")
       });
   }
 
@@ -63,7 +68,10 @@ private:
   double confidence_;
   std::string entity_;
   bool detection_at_input_;
-  perception_system_interfaces::msg::Detection detection_;
+  std::shared_ptr<perception_system_interfaces::msg::Detection> detection_;
+
+  tf2::BufferCore tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
 
 };
 

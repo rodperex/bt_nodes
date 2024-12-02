@@ -52,8 +52,8 @@ public:
         BT::InputPort<std::string>("entity_to_identify"), // Name of the entity to identify. Will be used as key in the blackboard
                                                           // A TF frame with the name of the entity will be published
         BT::InputPort<double>("confidence"), // Confidence threshold
-        BT::InputPort<perception_system_interfaces::msg::Detection>("detection"), // Detection of the entity to identify.
-                                                                                  // If present, it is stored in the blackboard for later use
+        BT::InputPort<std::shared_ptr<perception_system_interfaces::msg::Detection>>("detection"), // Detection of the entity to identify.
+                                                                                                  // If present, it is stored in the blackboard for later use
       });
   }
 
@@ -64,9 +64,8 @@ private:
   bool detection_at_input_;
   float confidence_;
 
-  perception_system_interfaces::msg::Detection detection_;
-  
-};
+  std::shared_ptr<perception_system_interfaces::msg::Detection> detection_;
+};;
 
 } // namespace perception
 
