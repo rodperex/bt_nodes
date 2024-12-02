@@ -50,7 +50,7 @@ public:
         BT::InputPort<int>("low_pointing_limit"),
         BT::InputPort<int>("high_pointing_limit"),
         BT::InputPort<float>("threshold"),
-        BT::OutputPort<perception_system_interfaces::msg::Detection>("detection"),
+        BT::OutputPort<std::shared_ptr<perception_system_interfaces::msg::Detection>>("detection"),
         BT::OutputPort<int>("pointing_direction"),
         BT::OutputPort<std::string>("output_frame")
       });

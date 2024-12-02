@@ -79,22 +79,22 @@ BT::NodeStatus IsPointing::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  perception_system_interfaces::msg::Detection best_detection = detections[0];
+  auto best_detection = std::make_shared<perception_system_interfaces::msg::Detection>(detections[0]);
 
   RCLCPP_INFO(node_->get_logger(), "Best detection pointing direction: %d",
-    best_detection.pointing_direction);
+    best_detection->pointing_direction);
 
   int direction = -1;
   for (int i = low_pointing_limit_; i <= high_pointing_limit_; i++) {
     RCLCPP_INFO(
       node_->get_logger(), "Pointing direction %d",
-      best_detection.pointing_direction);
-    if (best_detection.pointing_direction == i) {
+      best_detection->pointing_direction);
+    if (best_detection->pointing_direction == i) {
       direction = i;
       RCLCPP_INFO(node_->get_logger(), "I like the direction the person is pointing at: %d", direction);
       setOutput("pointing_direction", direction);
       setOutput("detection", best_detection);
-      if (pl::getInstance(node_)->publishTF_EKF(best_detection, output_frame_, true) == -1) {
+      if (pl::getInstance(node_)->publishTF_EKF(*best_detection, output_frame_, true) == -1) {
         return BT::NodeStatus::FAILURE;
       }
       break;
