@@ -31,10 +31,10 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
   getInput("model", model);
 
   if (model == "people") {
-    RCLCPP_INFO(node_->get_logger(), "Activating perception_people_detection");
+    RCLCPP_DEBUG(node_->get_logger(), "Activating perception_people_detection");
     node_->add_activation("perception_system/perception_people_detection");
   } else if (model == "object") {
-    RCLCPP_INFO(node_->get_logger(), "Activating perception_object_detection");
+    RCLCPP_DEBUG(node_->get_logger(), "Activating perception_object_detection");
     node_->add_activation("perception_system/perception_object_detection");
   } else {
     RCLCPP_ERROR(node_->get_logger(), "Unknown model: %s. Activating generic", model.c_str());
@@ -48,7 +48,7 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
   getInput("order", order_);
   getInput("max_depth", max_depth_);
 
-  RCLCPP_INFO(node_->get_logger(), "Interest: %s", interest_.c_str());
+  RCLCPP_DEBUG(node_->get_logger(), "Interest: %s", interest_.c_str());
 
   frames_.clear();
 }
@@ -79,7 +79,7 @@ BT::NodeStatus IsDetected::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  RCLCPP_INFO(node_->get_logger(), "Processing %ld detections...", detections.size());
+  RCLCPP_DEBUG(node_->get_logger(), "Processing %ld detections...", detections.size());
 
   if (order_ == "color") {
     // sorted by the distance to the color person we should sort it by distance and also by left to right or right to left
@@ -121,7 +121,7 @@ BT::NodeStatus IsDetected::tick()
       if (pl::getInstance(node_)->publishTF_EKF(detection, tf_name, true) == -1) {
         return BT::NodeStatus::FAILURE;
       }
-      RCLCPP_INFO(node_->get_logger(), "Publishing TF %s", tf_name.c_str());
+      RCLCPP_DEBUG(node_->get_logger(), "Publishing TF %s", tf_name.c_str());
       ++it;
       ++entity_counter;
     }
@@ -140,7 +140,7 @@ BT::NodeStatus IsDetected::tick()
 
   // frames_.clear();
 
-  RCLCPP_INFO(node_->get_logger(), "Detections published");
+  RCLCPP_DEBUG(node_->get_logger(), "Detections published");
   return BT::NodeStatus::SUCCESS;
 }
 

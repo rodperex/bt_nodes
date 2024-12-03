@@ -8,14 +8,18 @@
                     <Condition ID="IsDetected" best_detection="{patient}" confidence="0.6" interest="person" max_depth="20" max_entities="1" order="depth"/>
                 </RetryUntilSuccessful>
             </Timeout>
-            <ReactiveFallback>
-                <ForceFailure>
-                    <Action ID="Identify" confidence="0.0" detection="{patient}" entity_to_identify="patient"/>
-                </ForceFailure>
-                <Condition ID="IsInFront" direction="{dir}" entity_to_identify="patient"/>
-                <Action ID="Spin" angle="{dir}" forever="true" speed="0.2"/>
-            </ReactiveFallback>
+            <SubTree ID="align" __shared_blackboard="true"/>
         </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <BehaviorTree ID="align">
+        <ReactiveFallback>
+            <ForceFailure>
+                <Action ID="Identify" confidence="0.0" detection="{patient}" entity_to_identify="patient"/>
+            </ForceFailure>
+            <Condition ID="IsInFront" direction="{dir}" entity_to_identify="patient"/>
+            <Action ID="Spin" angle="{dir}" forever="true" speed="0.2"/>
+        </ReactiveFallback>
     </BehaviorTree>
     <!-- ////////// -->
     <TreeNodesModel>
@@ -41,6 +45,9 @@
             <input_port name="forever"/>
             <input_port name="speed"/>
         </Action>
+        <SubTree ID="align">
+            <input_port default="true" name="__shared_blackboard">If false (default), the Subtree has an isolated blackboard and needs port remapping</input_port>
+        </SubTree>
     </TreeNodesModel>
     <!-- ////////// -->
 </root>

@@ -61,7 +61,6 @@ private:
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
 
   std::string entity_;
-  bool detection_at_input_;
   float confidence_;
 
   std::shared_ptr<perception_system_interfaces::msg::Detection> detection_;
