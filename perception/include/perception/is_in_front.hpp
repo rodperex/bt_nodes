@@ -61,7 +61,6 @@ public:
 private:
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
 
-  // double confidence_;
   std::string entity_;
 
   tf2::BufferCore tf_buffer_;
