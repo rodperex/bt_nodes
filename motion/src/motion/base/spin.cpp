@@ -28,7 +28,7 @@ Spin::Spin(const std::string & xml_tag_name, const BT::NodeConfiguration & conf)
 
 BT::NodeStatus Spin::tick()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "Spin ticked");
+  RCLCPP_DEBUG(node_->get_logger(), "SPIN");
 
   getInput("angle", angle_);
   getInput("speed", speed_);
@@ -57,7 +57,9 @@ BT::NodeStatus Spin::tick()
 
   if (forever_) {
     RCLCPP_DEBUG(node_->get_logger(), "Spinning forever");
-    vel_pub_->publish(cmd_vel);
+    if (angle_ != 0) {
+      vel_pub_->publish(cmd_vel);
+    }
     return BT::NodeStatus::RUNNING;
   } else if ((std::abs(rotated_angle_) < std::abs(angle_))) {
     // RCLCPP_DEBUG(node_->get_logger(), "Target: %.2f degrees (dir: %d). Spinned %.2f degrees: ", angle_, direction_, rotated_angle_);
