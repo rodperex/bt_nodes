@@ -46,7 +46,6 @@ public:
       {
         BT::InputPort<int>("max_entities"), // Max number of entities to consider
         BT::InputPort<std::string>("model"), // YOLO model (object or people)
-        BT::InputPort<std::string>("cam_frame"), // Camera frame
         BT::InputPort<std::string>("interest"), // What to look for
         BT::InputPort<float>("confidence"), // Confidence threshold
         BT::InputPort<std::string>("order"), // How to sort the detections

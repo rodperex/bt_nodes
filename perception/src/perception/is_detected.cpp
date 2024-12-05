@@ -42,7 +42,6 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
   }
   
   getInput("interest", interest_);
-  getInput("cam_frame", cam_frame_);
   getInput("confidence", threshold_);
   getInput("max_entities", max_entities_);
   getInput("order", order_);
@@ -57,17 +56,16 @@ BT::NodeStatus IsDetected::tick()
 {
   rclcpp::spin_some(node_->get_node_base_interface());
   // getInput("interest", interest_);
-  // getInput("cam_frame", cam_frame_);
   // getInput("confidence", threshold_);
   // getInput("max_entities", max_entities_);
   // getInput("order", order_);
   // getInput("max_depth", max_depth_);
 
-  if (status() == BT::NodeStatus::IDLE) {
-    RCLCPP_DEBUG(node_->get_logger(), "IsDetected ticked while IDLE");
-  }
+  // if (status() == BT::NodeStatus::IDLE) {
+  //   RCLCPP_DEBUG(node_->get_logger(), "IsDetected ticked while IDLE");
+  // }
 
-  RCLCPP_DEBUG(node_->get_logger(), "IsDetected ticked");
+  RCLCPP_DEBUG(node_->get_logger(), "IS_DETECTED");
 
   pl::getInstance(node_)->set_interest(interest_, true);
   pl::getInstance(node_)->update(35);
