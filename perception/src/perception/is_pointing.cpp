@@ -38,6 +38,7 @@ IsPointing::IsPointing(const std::string & xml_tag_name, const BT::NodeConfigura
 
 BT::NodeStatus IsPointing::tick()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "IS_POINTING");
   rclcpp::spin_some(node_->get_node_base_interface());
   if (status() == BT::NodeStatus::IDLE) {
     RCLCPP_DEBUG(node_->get_logger(), "IsPointing ticked while IDLE");
