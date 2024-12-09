@@ -54,6 +54,7 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
 
 BT::NodeStatus IsDetected::tick()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "IS_DETECTED");
   rclcpp::spin_some(node_->get_node_base_interface());
   // getInput("interest", interest_);
   // getInput("confidence", threshold_);
@@ -64,8 +65,6 @@ BT::NodeStatus IsDetected::tick()
   // if (status() == BT::NodeStatus::IDLE) {
   //   RCLCPP_DEBUG(node_->get_logger(), "IsDetected ticked while IDLE");
   // }
-
-  RCLCPP_DEBUG(node_->get_logger(), "IS_DETECTED");
 
   pl::getInstance(node_)->set_interest(interest_, true);
   pl::getInstance(node_)->update(35);
