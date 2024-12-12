@@ -15,8 +15,6 @@
 #ifndef PERCEPTION_IS_IN_FRONT_HPP_
 #define PERCEPTION_IS_IN_FRONT_HPP_
 
-#include <tf2_ros/buffer.h>
-
 #include <memory>
 #include <string>
 #include <chrono>

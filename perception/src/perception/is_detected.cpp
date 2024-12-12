@@ -57,15 +57,6 @@ BT::NodeStatus IsDetected::tick()
 {
   RCLCPP_DEBUG(node_->get_logger(), "IS_DETECTED");
   rclcpp::spin_some(node_->get_node_base_interface());
-  // getInput("interest", interest_);
-  // getInput("confidence", threshold_);
-  // getInput("max_entities", max_entities_);
-  // getInput("order", order_);
-  // getInput("max_depth", max_depth_);
-
-  // if (status() == BT::NodeStatus::IDLE) {
-  //   RCLCPP_DEBUG(node_->get_logger(), "IsDetected ticked while IDLE");
-  // }
 
   pl::getInstance(node_)->set_interest(interest_, true);
   pl::getInstance(node_)->update(35);
