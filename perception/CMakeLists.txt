@@ -53,6 +53,7 @@ set(plugin_sources
   src/perception/identify.cpp
   src/perception/get_angle.cpp
   src/perception/is_in_front.cpp
+  src/perception/is_in_view.cpp
   src/perception/get_detection_from_tf.cpp
 )
 
