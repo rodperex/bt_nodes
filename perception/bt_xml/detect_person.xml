@@ -4,10 +4,10 @@
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
             <ReactiveFallback>
-                <Condition ID="IsDetected" best_detection="" confidence="0.6" frame="{chair}" interest="chair" max_depth="50" max_entities="1" model="object" n_detections="" order="depth"/>
-                <Action ID="Spin" angle="-1" forever="true" speed="0.8"/>
+                <Condition ID="IsDetected" best_detection="" confidence="0.6" frame="{person}" interest="person" max_depth="50" max_entities="1" model="people" n_detections="" order="depth"/>
+                <Action ID="Spin" angle="-1" forever="true" speed="0.1"/>
             </ReactiveFallback>
-            <Action ID="NavigateTo" distance_tolerance="0.5" tf_frame="{chair}" will_finish="true" x="" y=""/>
+            <Action ID="NavigateTo" distance_tolerance="0.5" tf_frame="{person}" will_finish="true" x="" y=""/>
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
