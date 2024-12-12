@@ -35,8 +35,15 @@ BT::NodeStatus
 GetDetectionFromTF::tick()
 {
   RCLCPP_DEBUG(node_->get_logger(), "GET_DETECTION_FROM_TF");
+  rclcpp::spin_some(node_->get_node_base_interface());
 
-  auto base2entity_msg = tf_buffer_.lookupTransform("base_link", frame_, tf2::TimePointZero);
+  geometry_msgs::msg::TransformStamped base2entity_msg;
+  try {
+    base2entity_msg = tf_buffer_.lookupTransform("base_link", frame_, tf2::TimePointZero);
+  } catch (tf2::TransformException & ex) {
+    RCLCPP_ERROR(node_->get_logger(), "Could not transform %s to base_link: %s", frame_.c_str(), ex.what());
+    return BT::NodeStatus::FAILURE;
+  }
   
   pl::getInstance(node_)->update(30);
   auto detections = pl::getInstance(node_)->get_detection_at(base2entity_msg);

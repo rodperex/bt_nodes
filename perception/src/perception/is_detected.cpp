@@ -46,6 +46,7 @@ IsDetected::IsDetected(const std::string & xml_tag_name, const BT::NodeConfigura
   getInput("max_entities", max_entities_);
   getInput("order", order_);
   getInput("max_depth", max_depth_);
+  getInput("frame_name", frame_name_);
 
   RCLCPP_DEBUG(node_->get_logger(), "Interest: %s", interest_.c_str());
 
@@ -113,12 +114,18 @@ BT::NodeStatus IsDetected::tick()
 
     } else {
       std::string tf_name;
-      tf_name = detection.class_name + "_" + std::to_string(entity_counter + 1);
+
+      if (frame_name_ == "") {
+        tf_name = detection.class_name;
+      } else {
+        tf_name = frame_name_;
+      }
+      tf_name = tf_name + "_" + std::to_string(entity_counter + 1);
       frames_.push_back(tf_name);
       if (pl::getInstance(node_)->publishTF_EKF(detection, tf_name, true) == -1) {
         return BT::NodeStatus::FAILURE;
       }
-      RCLCPP_DEBUG(node_->get_logger(), "Publishing TF %s", tf_name.c_str());
+      RCLCPP_INFO(node_->get_logger(), "Publishing TF %s", tf_name.c_str());
       ++it;
       ++entity_counter;
     }

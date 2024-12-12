@@ -44,6 +44,7 @@ BT::NodeStatus
 Identify::tick()
 {
   RCLCPP_DEBUG(node_->get_logger(), "IDENTIFY");
+  rclcpp::spin_some(node_->get_node_base_interface());
   std::vector<perception_system_interfaces::msg::Detection> detections;
 
   if (!getInput("detection", detection_)) {
@@ -52,6 +53,7 @@ Identify::tick()
   }
 
   pl::getInstance(node_)->update(30);
+  pl::getInstance(node_)->set_interest("person", true);
   detections = pl::getInstance(node_)->get_by_features(*detection_, confidence_);
 
   if (detections.empty()) {
@@ -59,15 +61,15 @@ Identify::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  std::sort(
-    detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
-      return a.score > b.score;
-  });
+  // std::sort(
+  //   detections.begin(), detections.end(), [this](const auto & a, const auto & b) {
+  //     return a.score > b.score;
+  // });
 
   // Publish the detection
-  RCLCPP_INFO(node_->get_logger(), "Perception system detected %s with confidence %f. Publishing TF", entity_.c_str(), detections[0].score);
+  RCLCPP_DEBUG(node_->get_logger(), "Perception system detected %s with confidence %f. Publishing TF", entity_.c_str(), detections[0].score);
   pl::getInstance(node_)->publishTF_EKF(detections[0], entity_, true);
-
+  detections.clear();
   return BT::NodeStatus::SUCCESS;  
 }
 

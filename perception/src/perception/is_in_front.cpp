@@ -31,7 +31,6 @@ IsInFront::IsInFront(const std::string & xml_tag_name, const BT::NodeConfigurati
 BT::NodeStatus IsInFront::tick()
 {
   RCLCPP_DEBUG(node_->get_logger(), "IS_IN_FRONT");
-
   rclcpp::spin_some(node_->get_node_base_interface());
   
   geometry_msgs::msg::TransformStamped base2entity_msg;
@@ -53,17 +52,17 @@ BT::NodeStatus IsInFront::tick()
 
   if (std::abs((yaw)) > 5.0) { // If the angle is greater than 5 degrees, the detection is not in front
     if (yaw > 0) {
-      RCLCPP_INFO(node_->get_logger(), "Detection is at %.2f degrees to the left", yaw);
+      RCLCPP_DEBUG(node_->get_logger(), "Detection is at %.2f degrees to the left", yaw);
       setOutput("direction", 1.0); // Left
     } else {
-      RCLCPP_INFO(node_->get_logger(), "Detection is at %.2f degrees to the right", yaw);
+      RCLCPP_DEBUG(node_->get_logger(), "Detection is at %.2f degrees to the right", yaw);
       setOutput("direction", -1.0); // Right
     }
     return BT::NodeStatus::FAILURE;
   }
 
   // The detection is in front. Publish the detection
-  RCLCPP_INFO(node_->get_logger(), "Detection is in front!");
+  RCLCPP_DEBUG(node_->get_logger(), "Detection is in front!");
   setOutput("direction", 0.0);
   return BT::NodeStatus::SUCCESS;
   

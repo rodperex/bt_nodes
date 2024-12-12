@@ -43,13 +43,13 @@ GetAngle::GetAngle(const std::string & xml_tag_name, const BT::NodeConfiguration
 BT::NodeStatus GetAngle::tick()
 {
   RCLCPP_DEBUG(node_->get_logger(), "GetAngle ticked");
+  rclcpp::spin_some(node_->get_node_base_interface());
 
   std::vector<perception_system_interfaces::msg::Detection> detections;
   perception_system_interfaces::msg::Detection detection;
   
   config().blackboard->get(target_, detection);
 
-  rclcpp::spin_some(node_->get_node_base_interface());
   
   detections = pl::getInstance(node_)->get_by_features(detection, confidence_);
 
