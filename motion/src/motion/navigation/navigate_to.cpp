@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "motion/navigation/navigate_to.hpp"
+#include <chrono>
 
 namespace navigation
 {
@@ -21,11 +22,14 @@ NavigateTo::NavigateTo(
   const std::string & xml_tag_name, const std::string & action_name,
   const BT::NodeConfiguration & conf)
 : motion::BtActionNode<nav2_msgs::action::NavigateToPose, rclcpp_cascade_lifecycle::CascadeLifecycleNode>(
-    xml_tag_name, action_name, conf),
-  tf_buffer_(),
-  tf_listener_(tf_buffer_)
+    xml_tag_name, action_name, conf)
+  // tf_buffer_(),
+  // tf_listener_(tf_buffer_)
 {
   config().blackboard->get("node", node_);
+  tf_buffer_ = std::make_unique<tf2_ros::Buffer>(node_->get_clock());
+
+  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_);
 }
 
 void NavigateTo::on_tick()
@@ -44,10 +48,14 @@ void NavigateTo::on_tick()
   if (tf_frame.length() > 0) { // There is a TF to go, ignore coordinates
     RCLCPP_INFO(node_->get_logger(), "Transforming map to %s", tf_frame.c_str());
     try {
-      map_to_goal = tf_buffer_.lookupTransform("map", tf_frame, tf2::TimePointZero);
+      map_to_goal = tf_buffer_->lookupTransform("map", tf_frame, tf2::TimePointZero);
+      // rclcpp::Time current_time = rclcpp::Clock(RCL_SYSTEM_TIME).now();
+      // rclcpp::Time time_threshold = current_time - rclcpp::Duration::from_seconds(5.0);
+      // geometry_msgs::msg::TransformStamped map_to_goal =
+      //   tf_buffer_->lookupTransform("map", tf_frame, tf2::TimePoint(std::chrono::seconds(time_threshold.nanoseconds() / 1000000000)));
     } catch (const tf2::TransformException & ex) {
       RCLCPP_WARN(
-        node_->get_logger(), "Could not transform %s to %s: %s", "map", tf_frame.c_str(), ex.what());
+        node_->get_logger(), "Could not transform map to %s: %s", tf_frame.c_str(), ex.what());
       setStatus(BT::NodeStatus::FAILURE);
       return;
     }

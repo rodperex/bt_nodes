@@ -61,7 +61,8 @@ Speak::swap_placeholders(std::string text, std::vector<std::string> elems)
 void
 Speak::on_tick()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "Speak ticked");
+  RCLCPP_INFO(node_->get_logger(), "SPEAK");
+  rclcpp::spin_some(node_->get_node_base_interface());
   
   
   goal_ = audio_common_msgs::action::TTS::Goal();
