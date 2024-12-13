@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<rclcpp_cascade_lifecycle::CascadeLifecycleNode>("perception_node");
+  auto node = std::make_shared<rclcpp_cascade_lifecycle::CascadeLifecycleNode>("attention_node");
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_ACTIVATE);
 
@@ -35,7 +35,6 @@ int main(int argc, char * argv[])
   std::string bt_xml_file;
   node->declare_parameter("plugins", plugins);
   node->declare_parameter("bt_xml_file", bt_xml_file);
-  // node->declare_parameter("tf_frame_camera", "");
   node->get_parameter("plugins", plugins);
   node->get_parameter("bt_xml_file", bt_xml_file);
 
@@ -47,7 +46,7 @@ int main(int argc, char * argv[])
     factory.registerFromPlugin(loader.getOSName(plugin));
   }
 
-  std::string pkgpath = ament_index_cpp::get_package_share_directory("perception_bt_nodes");
+  std::string pkgpath = ament_index_cpp::get_package_share_directory("attention_bt_nodes");
   std::string xml_file = pkgpath + "/bt_xml/" + bt_xml_file;
 
   RCLCPP_INFO(node->get_logger(), "Loading BT: [%s]", xml_file.c_str());

@@ -39,7 +39,7 @@ ActivateAttention::ActivateAttention(const std::string & xml_tag_name, const BT:
 }
 BT::NodeStatus ActivateAttention::tick()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "ACTIVATE_ATTENTION");
+  RCLCPP_INFO(node_->get_logger(), "ACTIVATE_ATTENTION");
   
   std_msgs::msg::String msg;
   msg.data = frame_id_;

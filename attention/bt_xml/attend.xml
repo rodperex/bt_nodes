@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <Action ID="ActivateAttention" frame_id="person_1" what="base"/>
+            <Timeout msec="10000">
+                <RetryUntilSuccessful num_attempts="-1">
+                    <AlwaysFailure/>
+                </RetryUntilSuccessful>
+            </Timeout>
+            <Action ID="DeactivateAttention" what="base"/>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="ActivateAttention">
+            <input_port name="frame_id"/>
+            <input_port default="base" name="what"/>
+        </Action>
+        <Action ID="DeactivateAttention">
+            <input_port default="base" name="what"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
+</root>

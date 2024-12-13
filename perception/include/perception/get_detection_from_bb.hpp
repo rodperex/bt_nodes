@@ -12,27 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ATTENTION_ACTIVATE__HPP_
-#define ATTENTION_ACTIVATE__HPP_
+#ifndef GET_FROM_BB__HPP
+#define GET_FROM_BB__HPP
 
 #include <memory>
 #include <string>
 #include <chrono>
 
 #include "rclcpp/rclcpp.hpp"
-#include "rclcpp_cascade_lifecycle/rclcpp_cascade_lifecycle.hpp"
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
-#include "std_msgs/msg/string.hpp"
+#include "perception_system_interfaces/msg/detection.hpp"
 
 
-namespace attention
+namespace perception
 {
 
-class ActivateAttention : public BT::ActionNodeBase
+class GetDetectionFromBB : public BT::ActionNodeBase
 {
 public:
-  explicit ActivateAttention(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
+  explicit GetDetectionFromBB(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
   BT::NodeStatus tick();
   void halt();
@@ -41,20 +40,17 @@ public:
   {
     return BT::PortsList(
       {
-        BT::InputPort<std::string>("what"),
-        BT::InputPort<std::string>("frame_id"),
+        BT::InputPort<std::string>("key"),
+        BT::OutputPort<std::shared_ptr<perception_system_interfaces::msg::Detection>>("detection")
       });
   }
 
 private:
-  std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
 
-  std::string frame_id_, what_;
-
-  rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::String>::SharedPtr attention_pub_;
+  std::string key_;
 
 };
 
-}  // namespace attention
+}  // namespace perception
 
-#endif  // ATTENTION_ACTIVATE__HPP_
+#endif  // GET_FROM_BB__HPP

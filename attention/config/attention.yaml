@@ -1,12 +1,7 @@
-perception_node:
+attention_node:
   ros__parameters:
     use_sim_time: True
-    tf_frame_camera: head_front_camera_optical_frame # oak_rgb_camera_optical_frame / head_front_camera_optical_frame
-    bt_xml_file: detect_person.xml
+    bt_xml_file: attend.xml
     plugins:
-    - is_in_front_bt_node
-    - is_detected_bt_node
-    - identify_bt_node
-    - spin_bt_node
-    - navigate_to_bt_node
-    - is_pointing_bt_node
+    - activate_attention_bt_node
+    - deactivate_attention_bt_node
