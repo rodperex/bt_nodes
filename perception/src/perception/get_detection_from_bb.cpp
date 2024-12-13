@@ -26,11 +26,11 @@ GetDetectionFromBB::GetDetectionFromBB(const std::string & xml_tag_name, const B
 BT::NodeStatus GetDetectionFromBB::tick()
 {
   
-  perception_system_interfaces::msg::Detection detection;
+  std::shared_ptr<perception_system_interfaces::msg::Detection> detection_ptr;
 
-  config().blackboard->get(key_, detection);
+  config().blackboard->get(key_, detection_ptr);
   
-  setOutput("detection", std::make_shared<perception_system_interfaces::msg::Detection>(detection));
+  setOutput("detection", detection_ptr);
   return BT::NodeStatus::SUCCESS;
 }
 

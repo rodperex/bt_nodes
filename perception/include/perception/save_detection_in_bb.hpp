@@ -41,7 +41,7 @@ public:
     return BT::PortsList(
       {
         BT::InputPort<std::string>("key"),
-        BT::InputPort<perception_system_interfaces::msg::Detection>("detection")
+        BT::InputPort<std::shared_ptr<perception_system_interfaces::msg::Detection>>("detection")
       });
   }
 
