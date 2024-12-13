@@ -12,34 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "perception/get_detection_from_bb.hpp"
+#include "perception/save_detection_in_bb.hpp"
 
 namespace perception
 {
 
 
-GetDetectionFromBB::GetDetectionFromBB(const std::string & xml_tag_name, const BT::NodeConfiguration & conf)
+SaveDetectionInBB::SaveDetectionInBB(const std::string & xml_tag_name, const BT::NodeConfiguration & conf)
 : BT::ActionNodeBase(xml_tag_name, conf)
 {
+  
   getInput("key", key_);
+  getInput("detection", detection_);
+  
 }
-BT::NodeStatus GetDetectionFromBB::tick()
+BT::NodeStatus SaveDetectionInBB::tick()
 {
-  
-  perception_system_interfaces::msg::Detection detection;
-
-  config().blackboard->get(key_, detection);
-  
-  setOutput("detection", std::make_shared<perception_system_interfaces::msg::Detection>(detection));
+  config().blackboard->set("detection", std::make_shared<perception_system_interfaces::msg::Detection>(detection_));
   return BT::NodeStatus::SUCCESS;
 }
 
-void GetDetectionFromBB::halt()
+void SaveDetectionInBB::halt()
 {
 }
 
 }  // namespace perception
 
 BT_REGISTER_NODES(factory) {
-  factory.registerNodeType<perception::GetDetectionFromBB>("GetDetectionFromBB");
+  factory.registerNodeType<perception::SaveDetectionInBB>("SaveDetectionInBB");
 }

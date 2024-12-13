@@ -55,6 +55,8 @@ set(plugin_sources
   src/perception/is_in_front.cpp
   src/perception/is_in_view.cpp
   src/perception/get_detection_from_tf.cpp
+  src/perception/get_detection_from_bb.cpp
+  src/perception/save_detection_in_bb.cpp
 )
 
 set(plugin_libs "")
