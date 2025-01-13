@@ -33,22 +33,19 @@ BT::NodeStatus IsInView::tick()
   RCLCPP_DEBUG(node_->get_logger(), "IS_IN_VIEW");
   rclcpp::spin_some(node_->get_node_base_interface());
 
-  // auto base2entity_msg = tf_buffer_.lookupTransform("base_link", frame_, tf2::TimePointZero);
-  
   pl::getInstance(node_)->update(30);
-  auto detections = pl::getInstance(node_)->get_by_id(detection_->unique_id);
+  // auto detections = pl::getInstance(node_)->get_by_id(detection_->unique_i d);
+  auto detections = pl::getInstance(node_)->get_by_type(detection_->type); //Until getting by ID works
   RCLCPP_DEBUG(node_->get_logger(), "Detection obtained by ID");
-  // auto detections = pl::getInstance(node_)->get_detection_at(base2entity_msg);
-  // RCLCPP_DEBUG(node_->get_logger(), "Detection obtained from TF");
 
   if (detections.empty()) {
-    RCLCPP_INFO(node_->get_logger(), "Detection not in view");
+    RCLCPP_INFO(node_->get_logger(), "Detection NOT  in view");
     return BT::NodeStatus::FAILURE;
   } else if (detections[0].score < 0.5) {
     RCLCPP_INFO(node_->get_logger(), "Detection in view but score is too low");
     return BT::NodeStatus::FAILURE;
   }
-
+  RCLCPP_INFO(node_->get_logger(), "Detection IN view");
   return BT::NodeStatus::SUCCESS; 
 
 }
