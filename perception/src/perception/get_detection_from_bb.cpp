@@ -29,7 +29,7 @@ BT::NodeStatus GetDetectionFromBB::tick()
   std::shared_ptr<perception_system_interfaces::msg::Detection> detection_ptr;
 
   config().blackboard->get(key_, detection_ptr);
-  
+  RCLCPP_INFO(rclcpp::get_logger("bt_node"), "Detection read from blackboard");
   setOutput("detection", detection_ptr);
   return BT::NodeStatus::SUCCESS;
 }

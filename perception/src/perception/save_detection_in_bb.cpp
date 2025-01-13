@@ -29,6 +29,7 @@ SaveDetectionInBB::SaveDetectionInBB(const std::string & xml_tag_name, const BT:
 BT::NodeStatus SaveDetectionInBB::tick()
 {
   config().blackboard->set("detection", std::make_shared<perception_system_interfaces::msg::Detection>(detection_));
+  RCLCPP_INFO(rclcpp::get_logger("bt_node"), "Detection saved in blackboard");
   return BT::NodeStatus::SUCCESS;
 }
 
