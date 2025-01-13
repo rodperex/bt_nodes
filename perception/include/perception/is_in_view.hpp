@@ -56,14 +56,14 @@ public:
   {
     return BT::PortsList(
       {
-        BT::InputPort<std::string>("frame") // Name of the tf frame of the entity to check if is in front
+        BT::InputPort<std::shared_ptr<perception_system_interfaces::msg::Detection>>("detection") // Detection to check if is in view
       });
   }
 
 private:
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
 
-  std::string frame_;
+  std::shared_ptr<perception_system_interfaces::msg::Detection> detection_;
   
   tf2::BufferCore tf_buffer_;
   tf2_ros::TransformListener tf_listener_;

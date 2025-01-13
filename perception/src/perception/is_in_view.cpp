@@ -26,18 +26,20 @@ IsInView::IsInView(const std::string & xml_tag_name, const BT::NodeConfiguration
 {
   config().blackboard->get("node", node_);
 
-  getInput("frame", frame_);
+  getInput("detection", detection_);
 }
 BT::NodeStatus IsInView::tick()
 {
   RCLCPP_DEBUG(node_->get_logger(), "IS_IN_VIEW");
   rclcpp::spin_some(node_->get_node_base_interface());
 
-  auto base2entity_msg = tf_buffer_.lookupTransform("base_link", frame_, tf2::TimePointZero);
+  // auto base2entity_msg = tf_buffer_.lookupTransform("base_link", frame_, tf2::TimePointZero);
   
   pl::getInstance(node_)->update(30);
-  auto detections = pl::getInstance(node_)->get_detection_at(base2entity_msg);
-  RCLCPP_DEBUG(node_->get_logger(), "Detection obtained from TF");
+  auto detections = pl::getInstance(node_)->get_by_id(detection_->unique_id);
+  RCLCPP_DEBUG(node_->get_logger(), "Detection obtained by ID");
+  // auto detections = pl::getInstance(node_)->get_detection_at(base2entity_msg);
+  // RCLCPP_DEBUG(node_->get_logger(), "Detection obtained from TF");
 
   if (detections.empty()) {
     RCLCPP_INFO(node_->get_logger(), "Detection not in view");
