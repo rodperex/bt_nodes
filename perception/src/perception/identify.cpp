@@ -54,10 +54,13 @@ Identify::tick()
 
   pl::getInstance(node_)->update(30);
   pl::getInstance(node_)->set_interest("person", true);
-  detections = pl::getInstance(node_)->get_by_features(*detection_, confidence_);
+  // detections = pl::getInstance(node_)->get_by_features(*detection_, confidence_);
+  detections = pl::getInstance(node_)->get_by_type(detection_->type); //Until getting by features works
+
+  // save_detection_tf_to_bb(detection_, "map", entity_);
 
   if (detections.empty()) {
-    RCLCPP_WARN(node_->get_logger(), "Perception system did not identify %s", entity_.c_str());
+    RCLCPP_WARN_ONCE(node_->get_logger(), "Perception system did not identify %s", entity_.c_str());
     return BT::NodeStatus::FAILURE;
   }
 
@@ -67,10 +70,29 @@ Identify::tick()
   // });
 
   // Publish the detection
-  RCLCPP_DEBUG(node_->get_logger(), "Perception system detected %s with confidence %f. Publishing TF", entity_.c_str(), detections[0].score);
+  RCLCPP_DEBUG(node_->get_logger(), "[IDENTIFY]: Detected %s with confidence %.2f", entity_.c_str(), detections[0].score);
   pl::getInstance(node_)->publishTF_EKF(detections[0], entity_, true);
   detections.clear();
   return BT::NodeStatus::SUCCESS;  
+}
+
+void
+Identify::save_detection_tf_to_bb(std::shared_ptr<perception_system_interfaces::msg::Detection> detection, std::string source_frame, std::string child_frame)
+{
+  std::shared_ptr<geometry_msgs::msg::TransformStamped> map2person_msg_ptr = std::make_shared<geometry_msgs::msg::TransformStamped>();  
+  
+  map2person_msg_ptr->header.stamp = detection->header.stamp;
+  map2person_msg_ptr->header.frame_id = source_frame;
+  map2person_msg_ptr->child_frame_id = child_frame;
+  map2person_msg_ptr->transform.translation.x = detection->center3d.position.x;
+  map2person_msg_ptr->transform.translation.y = detection->center3d.position.y;
+  map2person_msg_ptr->transform.translation.z = detection->center3d.position.z;
+  map2person_msg_ptr->transform.rotation.x = 0.0;
+  map2person_msg_ptr->transform.rotation.y = 0.0;
+  map2person_msg_ptr->transform.rotation.z = 0.0;
+  map2person_msg_ptr->transform.rotation.w = 1.0;
+  
+  config().blackboard->set("last_map2person", map2person_msg_ptr);
 }
 
 }  // namespace perception

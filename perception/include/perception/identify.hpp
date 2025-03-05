@@ -58,6 +58,8 @@ public:
   }
 
 private:
+  void save_detection_tf_to_bb(std::shared_ptr<perception_system_interfaces::msg::Detection> detection, std::string source_frame, std::string child_frame);
+
   std::shared_ptr<rclcpp_cascade_lifecycle::CascadeLifecycleNode> node_;
 
   std::string entity_;
