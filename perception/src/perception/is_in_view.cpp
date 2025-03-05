@@ -39,13 +39,13 @@ BT::NodeStatus IsInView::tick()
   RCLCPP_DEBUG(node_->get_logger(), "Detection obtained by ID");
 
   if (detections.empty()) {
-    RCLCPP_INFO(node_->get_logger(), "Detection NOT  in view");
+    RCLCPP_INFO(node_->get_logger(), "Detection NOT in view: FAILURE");
     return BT::NodeStatus::FAILURE;
   } else if (detections[0].score < 0.5) {
     RCLCPP_INFO(node_->get_logger(), "Detection in view but score is too low");
     return BT::NodeStatus::FAILURE;
   }
-  RCLCPP_INFO(node_->get_logger(), "Detection IN view");
+  RCLCPP_DEBUG(node_->get_logger(), "Detection IN view");
   return BT::NodeStatus::SUCCESS; 
 
 }
