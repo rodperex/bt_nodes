@@ -34,7 +34,7 @@ NavigateTo::NavigateTo(
 
 void NavigateTo::on_tick()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "NavigateTo ticked");
+  RCLCPP_INFO(node_->get_logger(), "NAVIGATE_TO");
   geometry_msgs::msg::PoseStamped goal;
   geometry_msgs::msg::TransformStamped map_to_goal;
   std::string tf_frame, xml_path;
@@ -46,7 +46,7 @@ void NavigateTo::on_tick()
   getInput("distance_tolerance", distance_tolerance);
 
   if (tf_frame.length() > 0) { // There is a TF to go, ignore coordinates
-    RCLCPP_INFO(node_->get_logger(), "Transforming map to %s", tf_frame.c_str());
+    RCLCPP_INFO(node_->get_logger(), "[NAVIGATE_TO]: transforming map to %s", tf_frame.c_str());
     try {
       map_to_goal = tf_buffer_->lookupTransform("map", tf_frame, tf2::TimePointZero);
       // rclcpp::Time current_time = rclcpp::Clock(RCL_SYSTEM_TIME).now();
@@ -55,7 +55,7 @@ void NavigateTo::on_tick()
       //   tf_buffer_->lookupTransform("map", tf_frame, tf2::TimePoint(std::chrono::seconds(time_threshold.nanoseconds() / 1000000000)));
     } catch (const tf2::TransformException & ex) {
       RCLCPP_WARN(
-        node_->get_logger(), "Could not transform map to %s: %s", tf_frame.c_str(), ex.what());
+        node_->get_logger(), "[NAVIGATE_TO]: could not transform map to %s: %s", tf_frame.c_str(), ex.what());
       setStatus(BT::NodeStatus::FAILURE);
       return;
     }
@@ -73,7 +73,7 @@ void NavigateTo::on_tick()
 
     getInput("x", goal.pose.position.x);
     getInput("y", goal.pose.position.y);
-    RCLCPP_INFO(node_->get_logger(), "Setting goal to x: %.2f, y: %.2f", goal.pose.position.x, goal.pose.position.y);
+    RCLCPP_INFO(node_->get_logger(), "[NAVIGATE_TO]: setting goal to x: %.2f, y: %.2f", goal.pose.position.x, goal.pose.position.y);
     
     goal.pose.orientation.w = 1.0;
     goal.pose.orientation.x = 0.0;
@@ -84,10 +84,10 @@ void NavigateTo::on_tick()
   goal.header.frame_id = "map";
 
   RCLCPP_INFO(
-    node_->get_logger(), "Sending coordinates. Frame: %s, x: %f, y: %f", goal.header.frame_id.c_str(),goal.pose.position.x, goal.pose.position.y);
+    node_->get_logger(), "[NAVIGATE_TO]: sending coordinates; frame: %s, x: %f, y: %f", goal.header.frame_id.c_str(),goal.pose.position.x, goal.pose.position.y);
   
   if (distance_tolerance != 0) {
-    RCLCPP_INFO(node_->get_logger(), "Setting distance tolerance to %f", distance_tolerance);
+    RCLCPP_INFO(node_->get_logger(), "[NAVIGATE_TO]: setting distance tolerance to %.2f", distance_tolerance);
     xml_path = generate_xml_file(nav_to_pose_truncated_xml, distance_tolerance);
     goal_.behavior_tree = xml_path;
   }
@@ -97,7 +97,7 @@ void NavigateTo::on_tick()
 
 BT::NodeStatus NavigateTo::on_success()
 {
-  RCLCPP_INFO(node_->get_logger(), "Navigation succeeded");
+  RCLCPP_INFO(node_->get_logger(), "[NAVIGATE_TO]: navigation succeeded");
   if (will_finish_) {
     return BT::NodeStatus::SUCCESS;
   }
@@ -124,7 +124,7 @@ BT::NodeStatus NavigateTo::on_cancelled()
   }
   on_tick();
   on_new_goal_received();
-  RCLCPP_INFO(node_->get_logger(), "Navigation cancelled");
+  RCLCPP_INFO(node_->get_logger(), "[NAVIGATE_TO]: navigation cancelled");
   return BT::NodeStatus::RUNNING;
 }
 

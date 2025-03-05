@@ -32,6 +32,8 @@ Speak::Speak(
   }
   node_->get_parameter("placeholder", placeholder_);
 
+  RCLCPP_DEBUG(node_->get_logger(), "Placeholder: %s", placeholder_.c_str());
+
   speech_text_publisher_ = node_->create_publisher<std_msgs::msg::String>("speech_text", 10);
   speech_start_publisher_ = node_->create_publisher<std_msgs::msg::Int8>("dialog_phase", 10);
 

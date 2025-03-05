@@ -38,7 +38,7 @@ DeactivateAttention::DeactivateAttention(const std::string & xml_tag_name, const
 }
 BT::NodeStatus DeactivateAttention::tick()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "ACTIVATE_ATTENTION");
+  RCLCPP_DEBUG(node_->get_logger(), "DEACTIVATE_ATTENTION");
   
   std_msgs::msg::String msg;
   msg.data = "";
