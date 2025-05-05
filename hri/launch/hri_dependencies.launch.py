@@ -52,7 +52,8 @@ def generate_launch_description():
         launch_arguments={'stream': 'False',
                           'language': 'es',
                           'model_repo': 'ggerganov/whisper.cpp',
-                          'model_filename': 'ggml-large-v3-turbo-q5_0.bin'}
+                          'model_filename': 'ggml-large-v3-turbo-q5_0.bin',
+                          'use_gpu': 'False',}
                           .items()                   
     )
     
@@ -75,7 +76,7 @@ def generate_launch_description():
             {'frame_id': ''},
             {'model': tts_model},
             {'speaker_wav': ''},
-            {'device': 'cuda'}]
+            {'device': 'cpu'}]
     )
 
     ld = LaunchDescription()
