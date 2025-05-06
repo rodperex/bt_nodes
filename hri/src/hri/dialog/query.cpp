@@ -40,7 +40,7 @@ Query::Query(
   node_->get_parameter("placeholder", placeholder_);
 
   try {
-    std::string pkg_dir = ament_index_cpp::get_package_share_directory("hri");
+    std::string pkg_dir = ament_index_cpp::get_package_share_directory("hri_bt_nodes");
     prompt_file_path_ = pkg_dir + "/config/" + prompt_file_path_;
     grammar_file_path_ = pkg_dir + "/config/" + grammar_file_path_;
   } catch (const std::exception &e) { 
