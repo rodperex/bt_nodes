@@ -15,5 +15,7 @@ repositories:
         type: git
         url: https://github.com/mgonzs13/tts_ros.git
         version: main
-
-    
+    thirdparty/llama_ros:
+        type: git
+        url: https://github.com/mgonzs13/llama_ros.git
+        version: main
