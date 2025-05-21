@@ -36,10 +36,10 @@ BT::NodeStatus Spin::tick()
   // getInput("direction", direction_);
 
   if (forever_) {
-    RCLCPP_DEBUG(node_->get_logger(), "Spinning forever");
+    RCLCPP_INFO_ONCE(node_->get_logger(), "Spinning forever");
   } else {
     // RCLCPP_INFO(node_->get_logger(), "Spinning %.2f degrees at %.2f rad/s (dir: %d)", angle_, speed_, direction_);
-    RCLCPP_DEBUG(node_->get_logger(), "Spinning %.2f degrees at %.2f rad/s", angle_, speed_);
+    RCLCPP_INFO_ONCE(node_->get_logger(), "Spinning %.2f degrees at %.2f rad/s", angle_, speed_);
   }
 
   if (status() == BT::NodeStatus::IDLE) {

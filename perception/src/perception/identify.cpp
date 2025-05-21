@@ -35,7 +35,7 @@ Identify::Identify(
   if (!getInput("confidence", confidence_)) {
     RCLCPP_WARN(node_->get_logger(), "No confidence provided. Using default value %f", confidence_);
   } else {
-    RCLCPP_INFO(node_->get_logger(), "Confidence threshold: %.2f", confidence_);
+    RCLCPP_DEBUG(node_->get_logger(), "Confidence threshold: %.2f", confidence_);
   }
   
 }
@@ -48,7 +48,7 @@ Identify::tick()
   std::vector<perception_system_interfaces::msg::Detection> detections;
 
   if (!getInput("detection", detection_)) {
-    RCLCPP_ERROR(node_->get_logger(), "No detection at input");
+    RCLCPP_ERROR_ONCE(node_->get_logger(), "[IDENTIFY]: No detection at input");
     return BT::NodeStatus::FAILURE;
   }
 
@@ -60,7 +60,7 @@ Identify::tick()
   // save_detection_tf_to_bb(detection_, "map", entity_);
 
   if (detections.empty()) {
-    RCLCPP_WARN_ONCE(node_->get_logger(), "Perception system did not identify %s", entity_.c_str());
+    RCLCPP_WARN_ONCE(node_->get_logger(), "[IDENTIFY]: Perception system did not identify %s", entity_.c_str());
     return BT::NodeStatus::FAILURE;
   }
 
@@ -72,6 +72,7 @@ Identify::tick()
   // Publish the detection
   RCLCPP_DEBUG(node_->get_logger(), "[IDENTIFY]: Detected %s with confidence %.2f", entity_.c_str(), detections[0].score);
   pl::getInstance(node_)->publishTF_EKF(detections[0], entity_, true);
+  RCLCPP_DEBUG(node_->get_logger(), "[IDENTIFY]: Published TF for %s", entity_.c_str());
   detections.clear();
   return BT::NodeStatus::SUCCESS;  
 }
