@@ -1,6 +1,6 @@
 repositories:
     thirdparty/cascade_lifecycle:
-        type: git
+        type: jazzy-devel
         url: https://github.com/fmrico/cascade_lifecycle
         version: main
     thirdparty/whisper_ros:
